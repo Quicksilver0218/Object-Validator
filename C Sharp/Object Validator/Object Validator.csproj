@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Quicksilver.ObjectValidator</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>Quicksilver0218.ObjectValidator</PackageId>
+    <PackageVersion>1.0.3</PackageVersion>
+    <Authors>Quicksilver0218</Authors>
+    <Copyright>Copyright (c) Quicksilver0218 2024</Copyright>
+    <Description>
+      A library providing functions that let users validate the values in objects with JSON-formatted rules.
+    </Description>
+    <RepositoryUrl>https://github.com/Quicksilver0218/Object-Validator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Validation;Object;JSON;Common Rules;Client;Server</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>

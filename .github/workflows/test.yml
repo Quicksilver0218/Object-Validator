@@ -1,0 +1,57 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test_csharp:
+    name: Test C#
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './C Sharp'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - name: Test
+        run: |
+          dotnet pack "Object Validator"
+          dotnet nuget locals all --clear
+          dotnet restore "Object Validator Test"
+          dotnet test "Object Validator Test"
+  test_java:
+    name: Test Java
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './Java/Object Validator'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+      - name: Test
+        run: ./gradlew test
+  test_typescript:
+    name: Test TypeScript
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './TypeScript/Object Validator'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Test
+        run: |
+          npm i
+          npm test

@@ -1,0 +1,155 @@
+[
+    {
+        "condition": {
+            "type": "!null",
+            "field": "testArray.*"
+        },
+        "id": 1
+    },
+    {
+        "condition": {
+            "type": "in",
+            "field": "testBool",
+            "args": ["True", "true"]
+        },
+        "id": 2
+    },
+    {
+        "condition": {
+            "type": "!blank",
+            "field": "testString"
+        },
+        "id": 3
+    },
+    {
+        "condition": {
+            "type": "regex",
+            "field": "testString",
+            "arg": "^test測試$"
+        },
+        "id": 4
+    },
+    {
+        "condition": {
+            "type": "bytes",
+            "field": "testString",
+            "arg": "6"
+        },
+        "id": 5
+    },
+    {
+        "condition": {
+            "type": "length",
+            "field": "testString",
+            "arg": "6"
+        },
+        "id": 6
+    },
+    {
+        "condition": {
+            "type": "length",
+            "field": "testArray",
+            "arg": "(0"
+        },
+        "id": 7
+    },
+    {
+        "condition": {
+            "type": "contains",
+            "field": "testString",
+            "arg": "test"
+        },
+        "id": 8
+    },
+    {
+        "condition": {
+            "type": "contains",
+            "field": "testArray",
+            "arg": "2024-01-01T00:00:00"
+        },
+        "id": 9
+    },
+    {
+        "condition": {
+            "type": "range",
+            "field": "testInt",
+            "arg": "1"
+        },
+        "id": 10
+    },
+    {
+        "condition": {
+            "type": "true",
+            "field": "testBool"
+        },
+        "id": 11
+    },
+    {
+        "condition": {
+            "type": "and",
+            "conditions": [
+                {
+                    "type": "!null",
+                    "field": "testArray.*"
+                },
+                {
+                    "type": "range",
+                    "field": "testArray.*.testDateTime",
+                    "arg": "[1900-01-01T00:00:00Z"
+                }
+            ]
+        },
+        "id": 101
+    },
+    {
+        "condition": {
+            "type": "or",
+            "conditions": [
+                {
+                    "type": "null",
+                    "field": "testString"
+                },
+                {
+                    "type": "length",
+                    "field": "testString",
+                    "arg": "(0"
+                }
+            ]
+        },
+        "id": 102
+    },
+    {
+        "condition": {
+            "type": "and",
+            "field": "testArray.*",
+            "conditions": [
+                {
+                    "type": "!null"
+                },
+                {
+                    "type": "range",
+                    "field": "testDateTime",
+                    "arg": "[1900-01-01T00:00:00Z"
+                }
+            ]
+        },
+        "id": 103
+    },
+    {
+        "condition": {
+            "type": "or",
+            "field": "testArray.*",
+            "conditions": [
+                {
+                    "type": "null"
+                },
+                {
+                    "type": "range",
+                    "field": "testDateTime",
+                    "arg": "[2023-01-01T00:00:00Z, 2024-01-01T00:00:00Z]"
+                }
+            ]
+        },
+        "id": 104
+    }
+]
