@@ -3,6 +3,9 @@
     - [Field Expression](#field-expression)
         - [General](#general)
         - [Iterable](#iterable)
+        - [Type Precedence and Suffixes](#type-precedence-and-suffixes)
+            - [Type Precedence](#type-precedence)
+            - [Suffixes](#suffixes)
     - [Condition Types](#condition-types)
         - [Not (!)](#not-)
         - [And](#and)
@@ -161,9 +164,39 @@ For iterable objects (e.g. `Set`), iteration can be performed by using `*`. Cons
 }
 ```
 
-If a string only containing 1 or more `*` should be used as a key in a map (dictionary), an extra `*` should be added. e.g. `"**"` represents `"*"` as a key and `"***"` represents `"**"` as a key.
+If you want to use `*` as a key in a `Map` (`Dictionary`), please put `/*` or `*/K` into the expression instead. (Please see [Suffixes](#suffixes) for detail.)
 
-For array-like objects (e.g. `Array`), indices can also be used. e.g. `phoneNumber.0.type`. While using an index out of bounds throws an exception in C♯ and Java, it is valid and `undefined` is returned in JavaScript / TypeScript.
+For lists and arrays, indices can also be used. e.g. `phoneNumber.0.type`. While using an index out of bounds throws an exception in C♯ and Java, it is valid and `undefined` is returned in JavaScript / TypeScript.
+
+#### Type Precedence and Suffixes
+##### Type Precedence
+By default, a field name will be handled in this order:
+1. If the upper-level object is a `Map` (`Dictionary`), the field name will be treated as a key.
+2. If the upper-level object is a `List` / `Array` and the field name can be parsed to an integer, the field name will be treated as an index.
+3. The field name will be treated as a field name.
+
+Therefore, if you want to express a field of a `Map` (`Dictionary`), a [Suffix](#suffixes) is required.
+
+##### Suffixes
+Field names ending with `/?` will be treated as having a suffix, where `?` can be any character. Suffixes are case-insensitive. Supported suffixes are listed below.
+
+###### C
+`C` stands for 'Concat'. This should be used when you want to have `.` in a field name. e.g. `part1/C.part2` represents `part1.part2` as a whole field name.
+
+###### F
+`F` stands for 'Field'. Field names with this suffix will be forcefully treated as a field name.
+
+###### I
+`I` stands for 'Index'. Field names with this suffix will be forcefully treated as an index in a `List` / `Array`.
+
+###### K
+`K` stands for 'Key'. Field names with this suffix will be forcefully treated as a key in a `Map` (`Dictionary`).
+
+###### *
+This can be used when you want to use `*` as a field name. e.g. `/*` represents `*` as a field name.
+
+###### Escape Character (/)
+Sometimes a field name without suffixes looks like having a suffix. You can prevent a field name such as this from being treated as having a suffix by adding one more `/` before `/`. e.g. `//A` represents `/A` as a field name.
 
 ### Condition Types
 #### Not (!)

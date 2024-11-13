@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>Quicksilver0218.ObjectValidator</PackageId>
-    <PackageVersion>1.0.3</PackageVersion>
+    <PackageVersion>2.0.0</PackageVersion>
     <Authors>Quicksilver0218</Authors>
     <Copyright>Copyright (c) Quicksilver0218 2024</Copyright>
     <Description>

@@ -3,20 +3,6 @@ package com.quicksilver.objectvalidator.runtime;
 import java.util.Arrays;
 
 class Utils {
-    static Object getFieldValue(Object o, String name) throws ReflectiveOperationException {
-        Class<?> clazz = o.getClass();
-        ReflectiveOperationException e = null;
-        do {
-            try {
-                return clazz.getDeclaredField(name).get(o);
-            } catch (ReflectiveOperationException ex) {
-                if (e == null)
-                    e = ex;
-            }
-        } while ((clazz = clazz.getSuperclass()) != null);
-        throw e;
-    }
-
     static boolean inRange(long num, String range) {
         for (String s : range.split(",")) {
             String limit = s.trim();

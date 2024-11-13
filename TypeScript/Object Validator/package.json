@@ -1,6 +1,6 @@
 {
   "name": "@quicksilver0218/object-validator",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "A library providing functions that let users validate the values in objects with JSON-formatted rules.",
   "type": "module",
   "main": "dist",

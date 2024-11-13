@@ -6,13 +6,39 @@ abstract class Condition(bool reversed, string? fieldExpression)
     protected readonly bool reversed = reversed;
     protected readonly string? fieldExpression = fieldExpression;
 
+    private static void HandleField(object o, string field, List<object?> fields) {
+        fields.Add(o.GetType().GetField(field)!.GetValue(o));
+    }
+
+    private static void HandleIndex(IList list, int index, List<object?> fields) {
+        fields.Add(list[index]);
+    }
+
+    private static void HandleKey(IDictionary map, string key, List<object?> fields) {
+        fields.Add(map[key]);
+    }
+
+    private static void HandleFields(List<object?> fields, string name, List<object?> newFields) {
+        foreach (object? o in fields)
+            if (o == null)
+                newFields.Add(null);
+            else if (o is IDictionary d)
+                HandleKey(d, name, newFields);
+            else if (o is IList l && int.TryParse(name, out int index))
+                HandleIndex(l, index, newFields);
+            else
+                HandleField(o, name, newFields);
+    }
+
     internal bool Check(object? root, string? rootFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields) {
         List<object?> fields = [root];
         if (fieldExpression != null) {
-            if (root != null)
+            if (root != null) {
+                string fullName = "";
                 foreach (string name in fieldExpression.Split('.')) {
                     List<object?> newFields = [];
-                    if (name == "*")
+                    fullName += name;
+                    if (fullName == "*")
                         foreach (object? o in fields)
                             if (o == null)
                                 newFields.Add(null);
@@ -21,28 +47,47 @@ abstract class Condition(bool reversed, string? fieldExpression)
                                     newFields.Add(item);
                             else
                                 throw new Exception("Unsupported type for iteration: " + o.GetType());
-                    else {
-                        string newName;
-                        foreach (char c in name)
-                            if (c != '*') {
-                                newName = name;
-                                goto Handle;
-                            }
-                        newName = name[1..];
-                        Handle:
-                        foreach (object? o in fields)
-                            if (o == null)
-                                newFields.Add(null);
-                            else if (o is IDictionary d)
-                                newFields.Add(d[newName]);
-                            else if (o is IList l && int.TryParse(newName, out int index)) {
-                                if (index < l.Count)
-                                    newFields.Add(l[index]);
-                            } else
-                                newFields.Add(o.GetType().GetField(newName)!.GetValue(o));
-                    }
+                    else if (name.Length >= 3 && name[^3..^1] == "//")
+                        fullName = fullName[0..^3] + fullName[^2..];
+                    else if (name.Length >= 2 && name[^2] == '/') {
+                        fullName = fullName[0..^2];
+                        switch (char.ToUpper(name[^1])) {
+                            case 'C':
+                                fullName += ".";
+                                continue;
+                            case 'F':
+                                foreach (object? o in fields)
+                                    if (o == null)
+                                        newFields.Add(null);
+                                    else
+                                        HandleField(o, fullName, newFields);
+                                break;
+                            case 'I':
+                                foreach (object? o in fields)
+                                    if (o == null)
+                                        newFields.Add(null);
+                                    else
+                                        HandleIndex((IList)o, int.Parse(fullName), newFields);
+                                break;
+                            case 'K':
+                                foreach (object? o in fields)
+                                    if (o == null)
+                                        newFields.Add(null);
+                                    else
+                                        HandleKey((IDictionary)o, fullName, newFields);
+                                break;
+                            case '*':
+                                HandleFields(fields, fullName + "*", newFields);
+                                break;
+                            default:
+                                throw new Exception("Unsupported suffix: " + name[^1]);
+                        }
+                    } else
+                        HandleFields(fields, name, newFields);
                     fields = newFields;
+                    fullName = "";
                 }
+            }
             if (rootFieldExpression != null)
                 rootFieldExpression += "." + fieldExpression;
             else
