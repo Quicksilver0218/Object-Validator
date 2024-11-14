@@ -8,11 +8,11 @@ export default class Contains extends Condition {
         this.arg = arg;
     }
 
-    protected override isFulfilledBy(field: any): boolean {
-        if (typeof field === "string")
-            return field.includes(this.arg!);
-        if (field instanceof Object && typeof field[Symbol.iterator] === "function") {
-            for (const o of field)
+    protected override isFulfilledBy(value: any): boolean {
+        if (typeof value === "string")
+            return value.includes(this.arg!);
+        if (value instanceof Object && typeof value[Symbol.iterator] === "function") {
+            for (const o of value)
                 if (typeof o === "undefined")
                     continue;
                 else if (o === null) {
@@ -22,6 +22,6 @@ export default class Contains extends Condition {
                     return true;
             return false;
         }
-        throw "Unsupported type for 'contains': " + (typeof field);
+        throw "Unsupported type for 'contains': " + (typeof value);
     }
 }

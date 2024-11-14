@@ -8,17 +8,17 @@ export default class In extends Condition {
         this.args = args;
     }
 
-    protected override isFulfilledBy(field: any): boolean {
-        if (typeof field === "undefined")
+    protected override isFulfilledBy(value: any): boolean {
+        if (typeof value === "undefined")
             return false;
-        if (field === null) {
+        if (value === null) {
             for (const arg of this.args)
                 if (arg === null)
                     return true;
             return false;
         }
         for (const arg of this.args)
-            if ((field as object).toString() === arg)
+            if ((value as object).toString() === arg)
                 return true;
         return false;
     }

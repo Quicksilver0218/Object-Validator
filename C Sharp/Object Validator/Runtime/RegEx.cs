@@ -5,12 +5,12 @@ class RegEx(bool reversed, string? fieldExpression, string pattern) : Condition(
 {
     private readonly string pattern = pattern;
 
-    protected override bool IsFulfilledBy(object? field, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
+    protected override bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
     {
-        if (field == null)
+        if (value == null)
             throw new Exception("Null values are not supported for 'regex'.");
-        if (field is string s)
+        if (value is string s)
             return Regex.IsMatch(s, pattern);
-        throw new Exception("Unsupported type for 'regex': " + field.GetType());
+        throw new Exception("Unsupported type for 'regex': " + value.GetType());
     }
 }

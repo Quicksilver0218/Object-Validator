@@ -14,12 +14,12 @@ public abstract class Condition {
         this.fieldExpression = fieldExpression;
     }
 
-    private static void handleField(Object o, String field, List<Object> fields) throws ReflectiveOperationException {
-        Class<?> clazz = o.getClass();
+    private static void handleField(Object obj, String field, List<Object> values) throws ReflectiveOperationException {
+        Class<?> clazz = obj.getClass();
         ReflectiveOperationException e = null;
         do {
             try {
-                fields.add(clazz.getDeclaredField(field).get(o));
+                values.add(clazz.getDeclaredField(field).get(obj));
                 return;
             } catch (ReflectiveOperationException ex) {
                 if (e == null)
@@ -29,50 +29,50 @@ public abstract class Condition {
         throw e;
     }
 
-    private static void handleIndex(Object list, int index, List<Object> fields) {
+    private static void handleIndex(Object list, int index, List<Object> values) {
         if (list instanceof Object[] a)
-            fields.add(a[index]);
+            values.add(a[index]);
         else
-            fields.add(((List<?>)list).get(index));
+            values.add(((List<?>)list).get(index));
     }
 
-    private static void handleKey(Map<?, ?> map, String key, List<Object> fields) {
-        fields.add(map.get(key));
+    private static void handleKey(Map<?, ?> map, String key, List<Object> values) {
+        values.add(map.get(key));
     }
 
-    private static void handleFields(List<Object> fields, String name, List<Object> newFields) throws ReflectiveOperationException {
-        for (Object o : fields)
-            if (o == null)
-                newFields.add(null);
-            else if (o instanceof Map m)
-                handleKey(m, name, newFields);
+    private static void handleValues(List<Object> values, String name, List<Object> newValues) throws ReflectiveOperationException {
+        for (Object value : values)
+            if (value == null)
+                newValues.add(null);
+            else if (value instanceof Map m)
+                handleKey(m, name, newValues);
             else {
                 try {
-                    if (o instanceof Object[] || o instanceof List)
-                        handleIndex(o, Integer.parseInt(name), newFields);
+                    if (value instanceof Object[] || value instanceof List)
+                        handleIndex(value, Integer.parseInt(name), newValues);
                 } catch (NumberFormatException unused) {}
-                handleField(o, name, newFields);
+                handleField(value, name, newValues);
             }
     }
 
     public boolean check(Object root, String rootFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) throws ReflectiveOperationException {
-        List<Object> fields = new ArrayList<Object>() {{ add(root); }};
+        List<Object> values = new ArrayList<Object>() {{ add(root); }};
         if (fieldExpression != null) {
             if (root != null) {
                 String fullName = "";
                 for (String name : fieldExpression.split("\\.", -1)) {
-                    ArrayList<Object> newFields = new ArrayList<>();
+                    ArrayList<Object> newValues = new ArrayList<>();
                     fullName += name;
                     if (fullName.equals("*"))
-                        for (Object o : fields)
+                        for (Object o : values)
                             if (o == null)
-                                newFields.add(null);
+                                newValues.add(null);
                             else if (o instanceof Object[] a)
                                 for (Object item : a)
-                                    newFields.add(item);
+                                    newValues.add(item);
                             else if (o instanceof Iterable e)
                                 for (Object item : e)
-                                    newFields.add(item);
+                                    newValues.add(item);
                             else
                                 throw new RuntimeException("Unsupported type for iteration: " + o.getClass());
                     else if (name.length() >= 3 && name.substring(name.length() - 3, name.length() - 1).equals("//"))
@@ -84,35 +84,35 @@ public abstract class Condition {
                                 fullName += ".";
                                 continue;
                             case 'F':
-                                for (Object o : fields)
+                                for (Object o : values)
                                     if (o == null)
-                                        newFields.add(null);
+                                        newValues.add(null);
                                     else
-                                        handleField(o, fullName, newFields);
+                                        handleField(o, fullName, newValues);
                                 break;
                             case 'I':
-                                for (Object o : fields)
+                                for (Object o : values)
                                     if (o == null)
-                                        newFields.add(null);
+                                        newValues.add(null);
                                     else
-                                        handleIndex(o, Integer.parseInt(fullName), newFields);
+                                        handleIndex(o, Integer.parseInt(fullName), newValues);
                                 break;
                             case 'K':
-                                for (Object o : fields)
+                                for (Object o : values)
                                     if (o == null)
-                                        newFields.add(null);
+                                        newValues.add(null);
                                     else
-                                        handleKey((Map<?, ?>)o, fullName, newFields);
+                                        handleKey((Map<?, ?>)o, fullName, newValues);
                                 break;
                             case '*':
-                                handleFields(fields, fullName + "*", newFields);
+                                handleValues(values, fullName + "*", newValues);
                                 break;
                             default:
                                 throw new RuntimeException("Unsupported suffix: " + name.charAt(name.length() - 1));
                         }
                     } else
-                        handleFields(fields, fullName, newFields);
-                    fields = newFields;
+                        handleValues(values, fullName, newValues);
+                    values = newValues;
                     fullName = "";
                 }
             }
@@ -122,8 +122,8 @@ public abstract class Condition {
                 rootFieldExpression = fieldExpression;
         }
         HashSet<String> childPassedFields = new HashSet<>(), childFailedFields = new HashSet<>();
-        for (Object field : fields)
-            if (isFulfilledBy(field, rootFieldExpression, childPassedFields, childFailedFields) == reversed) {
+        for (Object value : values)
+            if (isFulfilledBy(value, rootFieldExpression, childPassedFields, childFailedFields) == reversed) {
                 if (rootFieldExpression != null)
                     failedFields.add(rootFieldExpression);
                 if (reversed)
@@ -141,5 +141,5 @@ public abstract class Condition {
         return true;
     }
 
-    protected abstract boolean isFulfilledBy(Object field, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) throws ReflectiveOperationException;
+    protected abstract boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) throws ReflectiveOperationException;
 }

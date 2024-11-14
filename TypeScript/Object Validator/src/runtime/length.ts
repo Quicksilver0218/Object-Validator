@@ -9,15 +9,15 @@ export default class Length extends Condition {
         this.range = range;
     }
 
-    protected override isFulfilledBy(field: any): boolean {
-        if (typeof field === "string")
-            return Utils.inRange(field.length, this.range);
-        if (field instanceof Object) {
-            if (Number.isInteger(field["length"]))
-                return Utils.inRange(field["length"], this.range);
-            if (Number.isInteger(field["size"]))
-                return Utils.inRange(field["size"], this.range);
+    protected override isFulfilledBy(value: any): boolean {
+        if (typeof value === "string")
+            return Utils.inRange(value.length, this.range);
+        if (value instanceof Object) {
+            if (Number.isInteger(value["length"]))
+                return Utils.inRange(value["length"], this.range);
+            if (Number.isInteger(value["size"]))
+                return Utils.inRange(value["size"], this.range);
         }
-        throw "Unsupported type for 'length': " + (typeof field);
+        throw "Unsupported type for 'length': " + (typeof value);
     }
 }

@@ -8,7 +8,7 @@ public class Null extends Condition {
     }
 
     @Override
-    protected boolean isFulfilledBy(Object field, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        return field == null;
+    protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
+        return value == null;
     }
 }

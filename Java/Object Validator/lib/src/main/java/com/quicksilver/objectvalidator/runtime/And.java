@@ -11,10 +11,10 @@ public class And extends Condition {
     }
 
     @Override
-    protected boolean isFulfilledBy(Object field, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) throws ReflectiveOperationException, IllegalArgumentException, NoSuchFieldException, SecurityException {
+    protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) throws ReflectiveOperationException, IllegalArgumentException, NoSuchFieldException, SecurityException {
         HashSet<String> newPassedFields = new HashSet<>();
         for (Condition condition : conditions)
-            if (!condition.check(field, fullFieldExpression, newPassedFields, failedFields))
+            if (!condition.check(value, fullFieldExpression, newPassedFields, failedFields))
                 return false;
         passedFields.addAll(newPassedFields);
         return true;

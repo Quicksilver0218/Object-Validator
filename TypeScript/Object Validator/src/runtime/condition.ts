@@ -7,51 +7,51 @@ export default abstract class Condition {
         this.fieldExpression = fieldExpression;
     }
 
-    private static handleField(obj: object, field: string, fields: object[]) {
-        fields.push(obj[field]);
+    private static handleField(obj: object, field: string, values: object[]) {
+        values.push(obj[field]);
     }
 
-    private static handleIndex(list: any[], index: number, fields: object[]) {
-        fields.push(list[index]);
+    private static handleIndex(list: any[], index: number, values: object[]) {
+        values.push(list[index]);
     }
 
-    private static handleKey(map: Map<any, any>, key: string, fields: object[]) {
-        fields.push(map.get(key));
+    private static handleKey(map: Map<any, any>, key: string, values: object[]) {
+        values.push(map.get(key));
     }
 
-    private static handleFields(fields: object[], name: string, newFields: object[]) {
-        for (const o of fields)
-            if (o == null)
-                newFields.push(o);
-            else if (o instanceof Map)
-                this.handleKey(o, name, newFields);
+    private static handleValues(values: object[], name: string, newValues: object[]) {
+        for (const value of values)
+            if (value == null)
+                newValues.push(value);
+            else if (value instanceof Map)
+                this.handleKey(value, name, newValues);
             else {
-                if (o instanceof Array) {
+                if (value instanceof Array) {
                     const index = parseInt(name);
                     if (!isNaN(index)) {
-                        this.handleIndex(o, index, newFields);
+                        this.handleIndex(value, index, newValues);
                         return;
                     }
                 }
-                this.handleField(o, name, newFields);
+                this.handleField(value, name, newValues);
             }
     }
 
     check(root: any, rootFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean {
-        let fields = [root];
+        let values = [root];
         if (this.fieldExpression != null) {
             if (root != null) {
                 let fullName = "";
                 for (const name of this.fieldExpression.split(".")) {
-                    const newFields: any[] = [];
+                    const newValues: any[] = [];
                     fullName += name;
                     if (fullName === "*")
-                        for (const o of fields)
+                        for (const o of values)
                             if (o == null)
-                                newFields.push(o);
+                                newValues.push(o);
                             else if (typeof o[Symbol.iterator] === "function")
                                 for (const item of o)
-                                    newFields.push(item);
+                                    newValues.push(item);
                             else
                                 throw "Unsupported type for iteration: " + (typeof o);
                     else if (name.length >= 3 && name.substring(name.length - 3, name.length - 1) === "//")
@@ -63,35 +63,35 @@ export default abstract class Condition {
                                 fullName += ".";
                                 continue;
                             case "F":
-                                for (const o of fields)
+                                for (const o of values)
                                     if (o == null)
-                                        newFields.push(o);
+                                        newValues.push(o);
                                     else
-                                        Condition.handleField(o, fullName, newFields);
+                                        Condition.handleField(o, fullName, newValues);
                                 break;
                             case "I":
-                                for (const o of fields)
+                                for (const o of values)
                                     if (o == null)
-                                        newFields.push(o);
+                                        newValues.push(o);
                                     else
-                                        Condition.handleIndex(o, parseInt(fullName), newFields);
+                                        Condition.handleIndex(o, parseInt(fullName), newValues);
                                 break;
                             case "K":
-                                for (const o of fields)
+                                for (const o of values)
                                     if (o == null)
-                                        newFields.push(o);
+                                        newValues.push(o);
                                     else
-                                        Condition.handleKey(o, fullName, newFields);
+                                        Condition.handleKey(o, fullName, newValues);
                                 break;
                             case "*":
-                                Condition.handleFields(fields, fullName + "*", newFields);
+                                Condition.handleValues(values, fullName + "*", newValues);
                                 break;
                             default:
                                 throw "Unsupported suffix: " + name[name.length - 1];
                         }
                     } else
-                        Condition.handleFields(fields, name, newFields);
-                    fields = newFields;
+                        Condition.handleValues(values, name, newValues);
+                    values = newValues;
                     fullName = "";
                 }
             }
@@ -101,8 +101,8 @@ export default abstract class Condition {
                 rootFieldExpression = this.fieldExpression;
         }
         const childPassedFields = new Set<string>(), childFailedFields = new Set<string>();
-        for (const field of fields)
-            if (this.isFulfilledBy(field, rootFieldExpression, childPassedFields, childFailedFields) == this.reversed) {
+        for (const value of values)
+            if (this.isFulfilledBy(value, rootFieldExpression, childPassedFields, childFailedFields) == this.reversed) {
                 if (rootFieldExpression !== null)
                     failedFields.add(rootFieldExpression);
                 if (this.reversed)
@@ -120,5 +120,5 @@ export default abstract class Condition {
         return true;
     }
 
-    protected abstract isFulfilledBy(field: any, fullFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean;
+    protected abstract isFulfilledBy(value: any, fullFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean;
 }

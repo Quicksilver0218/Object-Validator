@@ -12,15 +12,15 @@ public class Length extends Condition {
     }
 
     @Override
-    protected boolean isFulfilledBy(Object field, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        if (field == null)
+    protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
+        if (value == null)
             throw new RuntimeException("Null values are not supported for 'length'.");
-        if (field instanceof CharSequence s)
+        if (value instanceof CharSequence s)
             return Utils.inRange(s.length(), range);
-        if (field instanceof Object[] a)
+        if (value instanceof Object[] a)
             return Utils.inRange(a.length, range);
-        if (field instanceof Collection c)
+        if (value instanceof Collection c)
             return Utils.inRange(c.size(), range);
-        throw new RuntimeException("Unsupported type for 'length': " + field.getClass());
+        throw new RuntimeException("Unsupported type for 'length': " + value.getClass());
     }
 }

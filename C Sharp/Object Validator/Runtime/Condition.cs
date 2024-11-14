@@ -6,45 +6,45 @@ abstract class Condition(bool reversed, string? fieldExpression)
     protected readonly bool reversed = reversed;
     protected readonly string? fieldExpression = fieldExpression;
 
-    private static void HandleField(object o, string field, List<object?> fields) {
-        fields.Add(o.GetType().GetField(field)!.GetValue(o));
+    private static void HandleField(object obj, string field, List<object?> values) {
+        values.Add(obj.GetType().GetField(field)!.GetValue(obj));
     }
 
-    private static void HandleIndex(IList list, int index, List<object?> fields) {
-        fields.Add(list[index]);
+    private static void HandleIndex(IList list, int index, List<object?> values) {
+        values.Add(list[index]);
     }
 
-    private static void HandleKey(IDictionary map, string key, List<object?> fields) {
-        fields.Add(map[key]);
+    private static void HandleKey(IDictionary map, string key, List<object?> values) {
+        values.Add(map[key]);
     }
 
-    private static void HandleFields(List<object?> fields, string name, List<object?> newFields) {
-        foreach (object? o in fields)
-            if (o == null)
-                newFields.Add(null);
-            else if (o is IDictionary d)
-                HandleKey(d, name, newFields);
-            else if (o is IList l && int.TryParse(name, out int index))
-                HandleIndex(l, index, newFields);
+    private static void HandleValues(List<object?> values, string name, List<object?> newValues) {
+        foreach (object? value in values)
+            if (value == null)
+                newValues.Add(null);
+            else if (value is IDictionary d)
+                HandleKey(d, name, newValues);
+            else if (value is IList l && int.TryParse(name, out int index))
+                HandleIndex(l, index, newValues);
             else
-                HandleField(o, name, newFields);
+                HandleField(value, name, newValues);
     }
 
     internal bool Check(object? root, string? rootFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields) {
-        List<object?> fields = [root];
+        List<object?> values = [root];
         if (fieldExpression != null) {
             if (root != null) {
                 string fullName = "";
                 foreach (string name in fieldExpression.Split('.')) {
-                    List<object?> newFields = [];
+                    List<object?> newValues = [];
                     fullName += name;
                     if (fullName == "*")
-                        foreach (object? o in fields)
+                        foreach (object? o in values)
                             if (o == null)
-                                newFields.Add(null);
+                                newValues.Add(null);
                             else if (o is IEnumerable e)
                                 foreach (object item in e)
-                                    newFields.Add(item);
+                                    newValues.Add(item);
                             else
                                 throw new Exception("Unsupported type for iteration: " + o.GetType());
                     else if (name.Length >= 3 && name[^3..^1] == "//")
@@ -56,35 +56,35 @@ abstract class Condition(bool reversed, string? fieldExpression)
                                 fullName += ".";
                                 continue;
                             case 'F':
-                                foreach (object? o in fields)
+                                foreach (object? o in values)
                                     if (o == null)
-                                        newFields.Add(null);
+                                        newValues.Add(null);
                                     else
-                                        HandleField(o, fullName, newFields);
+                                        HandleField(o, fullName, newValues);
                                 break;
                             case 'I':
-                                foreach (object? o in fields)
+                                foreach (object? o in values)
                                     if (o == null)
-                                        newFields.Add(null);
+                                        newValues.Add(null);
                                     else
-                                        HandleIndex((IList)o, int.Parse(fullName), newFields);
+                                        HandleIndex((IList)o, int.Parse(fullName), newValues);
                                 break;
                             case 'K':
-                                foreach (object? o in fields)
+                                foreach (object? o in values)
                                     if (o == null)
-                                        newFields.Add(null);
+                                        newValues.Add(null);
                                     else
-                                        HandleKey((IDictionary)o, fullName, newFields);
+                                        HandleKey((IDictionary)o, fullName, newValues);
                                 break;
                             case '*':
-                                HandleFields(fields, fullName + "*", newFields);
+                                HandleValues(values, fullName + "*", newValues);
                                 break;
                             default:
                                 throw new Exception("Unsupported suffix: " + name[^1]);
                         }
                     } else
-                        HandleFields(fields, name, newFields);
-                    fields = newFields;
+                        HandleValues(values, name, newValues);
+                    values = newValues;
                     fullName = "";
                 }
             }
@@ -94,8 +94,8 @@ abstract class Condition(bool reversed, string? fieldExpression)
                 rootFieldExpression = fieldExpression;
         }
         HashSet<string> childPassedFields = [], childFailedFields = [];
-        foreach (object? field in fields)
-            if (IsFulfilledBy(field, rootFieldExpression, childPassedFields, childFailedFields) == reversed) {
+        foreach (object? value in values)
+            if (IsFulfilledBy(value, rootFieldExpression, childPassedFields, childFailedFields) == reversed) {
                 if (rootFieldExpression != null)
                     failedFields.Add(rootFieldExpression);
                 if (reversed)
@@ -113,5 +113,5 @@ abstract class Condition(bool reversed, string? fieldExpression)
         return true;
     }
 
-    protected abstract bool IsFulfilledBy(object? field, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields);
+    protected abstract bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields);
 }

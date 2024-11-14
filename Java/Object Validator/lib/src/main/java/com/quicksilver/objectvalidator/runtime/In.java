@@ -11,15 +11,15 @@ public class In extends Condition {
     }
 
     @Override
-    protected boolean isFulfilledBy(Object field, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        if (field == null) {
+    protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
+        if (value == null) {
             for (String arg : args)
                 if (arg == null)
                     return true;
             return false;
         }
         for (String arg : args)
-            if (field.toString().equals(arg))
+            if (value.toString().equals(arg))
                 return true;
         return false;
     }

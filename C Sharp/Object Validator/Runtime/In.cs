@@ -3,16 +3,16 @@ class In(bool reversed, string? fieldExpression, string?[] args) : Condition(rev
 {
     private readonly string?[] args = args;
 
-    protected override bool IsFulfilledBy(object? field, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
+    protected override bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
     {
-        if (field == null) {
+        if (value == null) {
             foreach (string? arg in args)
                 if (arg == null)
                     return true;
             return false;
         }
         foreach (string? arg in args)
-            if (field.ToString() == arg)
+            if (value.ToString() == arg)
                 return true;
         return false;
     }

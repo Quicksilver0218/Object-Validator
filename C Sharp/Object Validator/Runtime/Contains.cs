@@ -5,13 +5,13 @@ class Contains(bool reversed, string? fieldExpression, string? arg) : Condition(
 {
     private readonly string? arg = arg;
 
-    protected override bool IsFulfilledBy(object? field, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
+    protected override bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
     {
-        if (field == null)
+        if (value == null)
             throw new Exception("Null values are not supported for 'contains'.");
-        if (field is string s)
+        if (value is string s)
             return s.Contains(arg!);
-        if (field is IEnumerable e) {
+        if (value is IEnumerable e) {
             foreach (object o in e)
                 if (o == null) {
                     if (arg == null)
@@ -20,6 +20,6 @@ class Contains(bool reversed, string? fieldExpression, string? arg) : Condition(
                     return true;
             return false;
         }
-        throw new Exception("Unsupported type for 'contains': " + field.GetType());
+        throw new Exception("Unsupported type for 'contains': " + value.GetType());
     }
 }

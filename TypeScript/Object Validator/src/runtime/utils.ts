@@ -13,23 +13,57 @@ import RegEx from "./reg-ex";
 import True from "./true";
 
 export default class Utils {
-    static inRange(num: number, range: string): boolean {
-        for (const s of range.split(",")) {
-            const limit = s.trim();
+    private static inLimit(value: any, operator: string, target: any, reversed: boolean): boolean {
+        switch (operator) {
+            case "<":
+                return value < target !== reversed;
+            case ">":
+                return value > target !== reversed;
+            case "=":
+                return +value === +target !== reversed;
+            default:
+                throw "Unsupported operator: " + operator;
+        }
+    }
+
+    static inRange(value: any, range: string): boolean {
+        for (let limit of range.split(",")) {
+            limit = limit.trim();
+            let operator: string;
+            let targetString: string;
+            let reversed: boolean;
             if (limit.startsWith("[")) {
-                if (num < parseInt(limit.substring(1)))
-                    return false;
+                operator = "<";
+                targetString = limit.substring(1);
+                reversed = false;
             } else if (limit.startsWith("(")) {
-                if (num <= parseInt(limit.substring(1)))
-                    return false;
+                operator = ">";
+                targetString = limit.substring(1);
+                reversed = true;
             } else if (limit.endsWith("]")) {
-                if (num > parseInt(limit.substring(0, limit.length - 1)))
-                    return false;
+                operator = ">";
+                targetString = limit.substring(0, limit.length - 1);
+                reversed = false;
             } else if (limit.endsWith(")")) {
-                if (num >= parseInt(limit.substring(0, limit.length - 1)))
+                operator = "<";
+                targetString = limit.substring(0, limit.length - 1);
+                reversed = true;
+            } else {
+                operator = "=";
+                targetString = limit;
+                reversed = true;
+            }
+            if (typeof value === "number") {
+                if (Utils.inLimit(value, operator, parseFloat(targetString), reversed))
                     return false;
-            } else if (num !== parseInt(limit))
-                return false;
+            } else if (typeof value === "bigint") {
+                if (Utils.inLimit(value, operator, BigInt(targetString), reversed))
+                    return false;
+            } else if (value instanceof Date) {
+                if (Utils.inLimit(value, operator, new Date(targetString), reversed))
+                    return false;
+            } else
+                throw "Unsupported type for 'inRange()': " + (typeof value);
         }
         return true;
     }

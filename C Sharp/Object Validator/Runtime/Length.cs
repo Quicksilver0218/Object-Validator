@@ -5,14 +5,14 @@ class Length(bool reversed, string? fieldExpression, string range) : Condition(r
 {
     private readonly string range = range;
 
-    protected override bool IsFulfilledBy(object? field, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
+    protected override bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
     {
-        if (field == null)
+        if (value == null)
             throw new Exception("Null values are not supported for 'length'.");
-        if (field is string s)
+        if (value is string s)
             return Utils.InRange(s.Length, range);
-        if (field is ICollection c)
+        if (value is ICollection c)
             return Utils.InRange(c.Count, range);
-        throw new Exception("Unsupported type for 'length': " + field.GetType());
+        throw new Exception("Unsupported type for 'length': " + value.GetType());
     }
 }
