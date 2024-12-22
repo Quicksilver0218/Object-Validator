@@ -1,4 +1,4 @@
-# Object-Validator
+# Object-Validator [![NuGet](https://img.shields.io/nuget/v/Quicksilver0218.ObjectValidator)](https://www.nuget.org/packages/Quicksilver0218.ObjectValidator) [![Maven](https://img.shields.io/maven-central/v/io.github.quicksilver0218/com.quicksilver.objectvalidator)](https://central.sonatype.com/artifact/io.github.quicksilver0218/com.quicksilver.objectvalidator) [![npm](https://img.shields.io/npm/v/%40quicksilver0218%2Fobject-validator)](https://www.npmjs.com/package/@quicksilver0218/object-validator)
 A library providing functions that let users validate the values in objects with JSON-formatted rules.
 
 ## Installation
