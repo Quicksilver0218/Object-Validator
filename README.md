@@ -28,6 +28,8 @@ type Condition = {
 }
 ```
 
+[JSON Schema](validation-rules-schema.json)
+
 For example:
 ```json
 [

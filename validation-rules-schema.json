@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Rules",
+  "description": "A list of validation rules",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "condition": {
+        "description": "The condition to be met for the rule to pass",
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "The type of the condition",
+            "enum": [
+              "and", "or", "null", "in", "blank", "regex", "bytes", "length", "contains", "range", "true",
+              "!and", "!or", "!null", "!in", "!blank", "!regex", "!bytes", "!length", "!contains", "!range", "!true"
+            ]
+          },
+          "field": {
+            "description": "The field to be checked",
+            "type": "string"
+          },
+          "arg": {
+            "description": "The argument of the condition",
+            "type": "string"
+          },
+          "args": {
+            "description": "The arguments of the condition",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "conditions": {
+            "description": "The sub-conditions of the condition",
+            "type": "array",
+            "items": {
+              "$ref": "#/items/properties/condition"
+            }
+          }
+        },
+        "required": ["type"],
+        "anyOf": [
+          {
+            "properties": {
+              "type": { "enum": [
+                "regex", "bytes", "length", "contains", "range",
+                "!regex", "!bytes", "!length", "!contains", "!range"
+              ] }
+            },
+            "required": ["arg"]
+          },
+          {
+            "properties": {
+              "type": { "enum": ["in", "!in"] }
+            },
+            "required": ["args"]
+          },
+          {
+            "properties": {
+              "type": { "enum": ["and", "or", "!and", "!or"] }
+            },
+            "required": ["conditions"]
+          }
+        ],
+        "defaultSnippets": [
+          { "label": "Condition", "body": { "type": "" } },
+          { "label": "Condition with an argument", "body": { "type": "", "arg": "" } },
+          { "label": "Condition with multiple arguments", "body": { "type": "", "args": [] } },
+          { "label": "Condition with sub-conditions", "body": { "type": "", "conditions": [{ "type": "" }] } }
+        ]
+      },
+      "id": {
+        "description": "The unique identifier for the rule",
+        "type": "integer"
+      },
+      "errorMessage": {
+        "description": "The error message to be returned if the rule fails",
+        "type": "string"
+      }
+    },
+    "required": ["condition"]
+  }
+}
