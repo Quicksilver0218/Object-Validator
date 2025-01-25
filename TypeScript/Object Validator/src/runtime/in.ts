@@ -1,23 +1,23 @@
 import Condition from "./condition";
 
 export default class In extends Condition {
-    private readonly args: (string | null)[];
+    private readonly _args: (string | null)[];
 
     constructor(reversed: boolean, fieldExpression: string | undefined, args: (string | null)[]) {
         super(reversed, fieldExpression);
-        this.args = args;
+        this._args = args;
     }
 
     protected override isFulfilledBy(value: any): boolean {
-        if (typeof value === "undefined")
+        if (value === undefined)
             return false;
         if (value === null) {
-            for (const arg of this.args)
+            for (const arg of this._args)
                 if (arg === null)
                     return true;
             return false;
         }
-        for (const arg of this.args)
+        for (const arg of this._args)
             if ((value as object).toString() === arg)
                 return true;
         return false;

@@ -2,6 +2,7 @@ package com.quicksilver.objectvalidator.runtime;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Length extends Condition {
     private final String range;
@@ -21,6 +22,8 @@ public class Length extends Condition {
             return Utils.inRange(a.length, range);
         if (value instanceof Collection c)
             return Utils.inRange(c.size(), range);
+        if (value instanceof Map m)
+            return Utils.inRange(m.size(), range);
         throw new RuntimeException("Unsupported type for 'length': " + value.getClass());
     }
 }

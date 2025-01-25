@@ -1,48 +1,48 @@
+function handleField(obj: object, field: string, values: object[]) {
+    values.push(obj[field]);
+}
+
+function handleIndex(list: any[], index: number, values: object[]) {
+    values.push(list[index]);
+}
+
+function handleKey(map: Map<any, any>, key: string, values: object[]) {
+    values.push(map.get(key));
+}
+
+function handleValues(values: object[], name: string, newValues: object[]) {
+    for (const value of values)
+        if (value == null)
+            newValues.push(value);
+        else if (value instanceof Map)
+            handleKey(value, name, newValues);
+        else {
+            if (value instanceof Array) {
+                const index = parseInt(name);
+                if (!isNaN(index)) {
+                    handleIndex(value, index, newValues);
+                    return;
+                }
+            }
+            handleField(value, name, newValues);
+        }
+}
+
 export default abstract class Condition {
-    protected readonly reversed: boolean;
-    protected readonly fieldExpression?: string;
+    private readonly _reversed: boolean;
+    private readonly _fieldExpression?: string;
 
     constructor(reversed: boolean, fieldExpression?: string) {
-        this.reversed = reversed;
-        this.fieldExpression = fieldExpression;
-    }
-
-    private static handleField(obj: object, field: string, values: object[]) {
-        values.push(obj[field]);
-    }
-
-    private static handleIndex(list: any[], index: number, values: object[]) {
-        values.push(list[index]);
-    }
-
-    private static handleKey(map: Map<any, any>, key: string, values: object[]) {
-        values.push(map.get(key));
-    }
-
-    private static handleValues(values: object[], name: string, newValues: object[]) {
-        for (const value of values)
-            if (value == null)
-                newValues.push(value);
-            else if (value instanceof Map)
-                this.handleKey(value, name, newValues);
-            else {
-                if (value instanceof Array) {
-                    const index = parseInt(name);
-                    if (!isNaN(index)) {
-                        this.handleIndex(value, index, newValues);
-                        return;
-                    }
-                }
-                this.handleField(value, name, newValues);
-            }
+        this._reversed = reversed;
+        this._fieldExpression = fieldExpression;
     }
 
     check(root: any, rootFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean {
         let values = [root];
-        if (this.fieldExpression != null) {
+        if (this._fieldExpression != null) {
             if (root != null) {
                 let fullName = "";
-                for (const name of this.fieldExpression.split(".")) {
+                for (const name of this._fieldExpression.split(".")) {
                     const newValues: any[] = [];
                     fullName += name;
                     if (fullName === "*")
@@ -67,45 +67,45 @@ export default abstract class Condition {
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        Condition.handleField(o, fullName, newValues);
+                                        handleField(o, fullName, newValues);
                                 break;
                             case "I":
                                 for (const o of values)
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        Condition.handleIndex(o, parseInt(fullName), newValues);
+                                        handleIndex(o, parseInt(fullName), newValues);
                                 break;
                             case "K":
                                 for (const o of values)
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        Condition.handleKey(o, fullName, newValues);
+                                        handleKey(o, fullName, newValues);
                                 break;
                             case "*":
-                                Condition.handleValues(values, fullName + "*", newValues);
+                                handleValues(values, fullName + "*", newValues);
                                 break;
                             default:
                                 throw "Unsupported suffix: " + name[name.length - 1];
                         }
                     } else
-                        Condition.handleValues(values, name, newValues);
+                        handleValues(values, name, newValues);
                     values = newValues;
                     fullName = "";
                 }
             }
             if (rootFieldExpression !== null)
-                rootFieldExpression += "." + this.fieldExpression;
+                rootFieldExpression += "." + this._fieldExpression;
             else
-                rootFieldExpression = this.fieldExpression;
+                rootFieldExpression = this._fieldExpression;
         }
         const childPassedFields = new Set<string>(), childFailedFields = new Set<string>();
         for (const value of values)
-            if (this.isFulfilledBy(value, rootFieldExpression, childPassedFields, childFailedFields) == this.reversed) {
+            if (this.isFulfilledBy(value, rootFieldExpression, childPassedFields, childFailedFields) == this._reversed) {
                 if (rootFieldExpression !== null)
                     failedFields.add(rootFieldExpression);
-                if (this.reversed)
+                if (this._reversed)
                     childPassedFields.forEach(a => failedFields.add(a));
                 else
                     childFailedFields.forEach(a => failedFields.add(a));
@@ -113,7 +113,7 @@ export default abstract class Condition {
             }
         if (rootFieldExpression !== null)
             passedFields.add(rootFieldExpression);
-        if (this.reversed)
+        if (this._reversed)
             childFailedFields.forEach(a => passedFields.add(a));
         else
             childPassedFields.forEach(a => passedFields.add(a));

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Reflection;
 
 namespace Quicksilver.ObjectValidator.Runtime;
 abstract class Condition(bool reversed, string? fieldExpression)
@@ -7,7 +8,7 @@ abstract class Condition(bool reversed, string? fieldExpression)
     protected readonly string? fieldExpression = fieldExpression;
 
     private static void HandleField(object obj, string field, List<object?> values) {
-        values.Add(obj.GetType().GetField(field)!.GetValue(obj));
+        values.Add(obj.GetType().GetField(field, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(obj));
     }
 
     private static void HandleIndex(IList list, int index, List<object?> values) {

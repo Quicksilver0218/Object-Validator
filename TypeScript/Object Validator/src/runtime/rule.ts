@@ -1,6 +1,6 @@
 import { Rule as ConfigRule } from "../config";
 import Condition from "./condition";
-import Utils from "./utils";
+import { buildRuntimeCondition } from "./utils";
 
 export default class Rule {
     readonly condition: Condition;
@@ -8,7 +8,7 @@ export default class Rule {
     readonly errorMessage?: string;
 
     constructor(rule: ConfigRule) {
-        this.condition = Utils.buildRuntimeCondition(rule.condition);
+        this.condition = buildRuntimeCondition(rule.condition);
         this.id = rule.id;
         this.errorMessage = rule.errorMessage;
     }

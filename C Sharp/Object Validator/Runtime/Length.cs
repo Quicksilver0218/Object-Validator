@@ -13,6 +13,8 @@ class Length(bool reversed, string? fieldExpression, string range) : Condition(r
             return Utils.InRange(s.Length, range);
         if (value is ICollection c)
             return Utils.InRange(c.Count, range);
+        if (value is IReadOnlyCollection<object> roc)
+            return Utils.InRange(roc.Count, range);
         throw new Exception("Unsupported type for 'length': " + value.GetType());
     }
 }

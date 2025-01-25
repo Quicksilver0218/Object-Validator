@@ -29,6 +29,7 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation libs.guava
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.2'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -46,7 +47,7 @@ tasks.named('test') {
 }
 
 archivesBaseName = 'com.quicksilver.objectvalidator'
-version = '2.0.1'
+version = '2.1.0'
 description = 'A library providing functions that let users validate the values in objects with JSON-formatted rules.'
 group = 'io.github.quicksilver0218'
 

@@ -4,11 +4,11 @@ import ValidationFailure from "./validation-failure";
 import ValidationResult from "./validation-result";
 
 export default class Validator {
-    private readonly rules: RuntimeRule[];
+    private readonly _rules: RuntimeRule[];
     fastFail: boolean;
 
     constructor(rules: Rule[], fastFail = false) { 
-        this.rules = rules.map(r => new RuntimeRule(r));
+        this._rules = rules.map(r => new RuntimeRule(r));
         this.fastFail = fastFail;
     }
 
@@ -16,7 +16,7 @@ export default class Validator {
         let valid = true;
         const failedFields = new Set<string>();
         const failures: ValidationFailure[] = [];
-        for (const rule of this.rules) {
+        for (const rule of this._rules) {
             if (!rule.condition.check(obj, null, new Set(), failedFields)) {
                 valid = false;
                 if (rule.id != null || rule.errorMessage != null)

@@ -11,21 +11,17 @@ public class UnitTest1
 
     public UnitTest1()
     {
-        validator = new(File.ReadAllText("rules.json"));
-        TestObject testObject = new() {
-            testString = "test測試",
-            testInt = 1,
-            testBool = true,
-            testArray = [
+        validator = new(File.OpenText("rules.json"));
+        TestObject testObject = new(
+            "test測試",
+            1,
+            true,
+            [
                 null,
-                new() {
-                    testDateTime = new DateTime(2023, 1, 1)
-                },
-                new() {
-                    testDateTime = new DateTime(2024, 1, 1)
-                }
+                new(new(2023, 1, 1)),
+                new(new(2024, 1, 1))
             ]
-        };
+        );
         Stopwatch stopwatch = Stopwatch.StartNew();
         result = validator.Validate(testObject);
         stopwatch.Stop();

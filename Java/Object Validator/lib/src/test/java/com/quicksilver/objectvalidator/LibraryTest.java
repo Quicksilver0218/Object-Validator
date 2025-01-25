@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Set;
@@ -24,21 +22,21 @@ class LibraryTest {
     private final Set<Integer> failures;
 
     LibraryTest() throws JsonMappingException, JsonProcessingException, IOException, URISyntaxException, ReflectiveOperationException {
-        validator = new Validator(Files.readString(Paths.get(getClass().getClassLoader().getResource("rules.json").toURI())));
-        TestObject testObject = new TestObject() {{
-            testString = "test測試";
-            testInt = 1;
-            testBool = true;
-            testArray = new TestObject2[] {
+        validator = new Validator(getClass().getResource("/rules.json"));
+        TestObject testObject = new TestObject(
+            "test測試",
+            1,
+            true,
+            new TestObject2[] {
                 null,
-                new TestObject2() {{
-                    testDateTime = Date.from(ZonedDateTime.of(2023, 1, 1, 0, 0, 0, 0, TimeZone.getTimeZone("UTC").toZoneId()).toInstant());
-                }},
-                new TestObject2() {{
-                    testDateTime = Date.from(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, TimeZone.getTimeZone("UTC").toZoneId()).toInstant());
-                }}
-            };
-        }};
+                new TestObject2(
+                    Date.from(ZonedDateTime.of(2023, 1, 1, 0, 0, 0, 0, TimeZone.getTimeZone("UTC").toZoneId()).toInstant())
+                ),
+                new TestObject2(
+                    Date.from(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, TimeZone.getTimeZone("UTC").toZoneId()).toInstant())
+                )
+            }
+        );
         long start = System.currentTimeMillis();
         result = validator.validate(testObject);
         System.out.println(System.currentTimeMillis() - start + " ms");

@@ -1,14 +1,16 @@
-using System.Text.Json;
 using Quicksilver.ObjectValidator.Runtime;
+using YamlDotNet.Serialization;
 
 namespace Quicksilver.ObjectValidator;
 public class Validator(Config.Rule[] rules, bool fastFail = false)
 {
-    private static readonly JsonSerializerOptions options = new() { IncludeFields = true };
-    private readonly Rule[] rules = rules.Select(r => new Rule(r)).ToArray();
+    private static readonly IDeserializer deserializer = new DeserializerBuilder().WithTypeConverter(new TypeConverter()).Build();
+    private readonly Rule[] rules = [..rules.Select(r => new Rule(r))];
     public bool fastFail = fastFail;
 
-    public Validator(string rulesJson, bool fastFail = false) : this(JsonSerializer.Deserialize<Config.Rule[]>(rulesJson, options)!, fastFail) {}
+    public Validator(string rulesYaml, bool fastFail = false) : this(deserializer.Deserialize<Config.Rule[]>(rulesYaml)!, fastFail) {}
+
+    public Validator(TextReader reader, bool fastFail = false) : this(deserializer.Deserialize<Config.Rule[]>(reader)!, fastFail) {}
 
     public ValidationResult Validate(object? obj)
     {

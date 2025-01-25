@@ -1,24 +1,24 @@
 import Condition from "./condition";
 
 export default class Contains extends Condition {
-    private readonly arg: string | null;
+    private readonly _arg: string | null;
 
     constructor(reversed: boolean, fieldExpression: string | undefined, arg: string) {
         super(reversed, fieldExpression);
-        this.arg = arg;
+        this._arg = arg;
     }
 
     protected override isFulfilledBy(value: any): boolean {
         if (typeof value === "string")
-            return value.includes(this.arg!);
+            return value.includes(this._arg!);
         if (value instanceof Object && typeof value[Symbol.iterator] === "function") {
             for (const o of value)
-                if (typeof o === "undefined")
+                if (o === undefined)
                     continue;
                 else if (o === null) {
-                    if (this.arg === null)
+                    if (this._arg === null)
                         return true;
-                } else if ((o as object).toString() === this.arg)
+                } else if ((o as object).toString() === this._arg)
                     return true;
             return false;
         }

@@ -5,12 +5,10 @@
         "target": "ESNext",
         "strictNullChecks": true,
         "strictFunctionTypes": true,
-        "sourceMap": true,
         "outDir": "dist",
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "declaration": true,
-        "declarationMap": true
+        "declaration": true
     },
     "include": [
         "src"

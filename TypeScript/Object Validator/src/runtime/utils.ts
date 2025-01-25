@@ -12,94 +12,92 @@ import Range from "./range";
 import RegEx from "./reg-ex";
 import True from "./true";
 
-export default class Utils {
-    private static inLimit(value: any, operator: string, target: any, reversed: boolean): boolean {
-        switch (operator) {
-            case "<":
-                return value < target !== reversed;
-            case ">":
-                return value > target !== reversed;
-            case "=":
-                return +value === +target !== reversed;
-            default:
-                throw "Unsupported operator: " + operator;
-        }
+function inLimit(value: any, operator: string, target: any, reversed: boolean): boolean {
+    switch (operator) {
+        case "<":
+            return value < target !== reversed;
+        case ">":
+            return value > target !== reversed;
+        case "=":
+            return +value === +target !== reversed;
+        default:
+            throw "Unsupported operator: " + operator;
     }
+}
 
-    static inRange(value: any, range: string): boolean {
-        for (let limit of range.split(",")) {
-            limit = limit.trim();
-            let operator: string;
-            let targetString: string;
-            let reversed: boolean;
-            if (limit.startsWith("[")) {
-                operator = "<";
-                targetString = limit.substring(1);
-                reversed = false;
-            } else if (limit.startsWith("(")) {
-                operator = ">";
-                targetString = limit.substring(1);
-                reversed = true;
-            } else if (limit.endsWith("]")) {
-                operator = ">";
-                targetString = limit.substring(0, limit.length - 1);
-                reversed = false;
-            } else if (limit.endsWith(")")) {
-                operator = "<";
-                targetString = limit.substring(0, limit.length - 1);
-                reversed = true;
-            } else {
-                operator = "=";
-                targetString = limit;
-                reversed = true;
-            }
-            if (typeof value === "number") {
-                if (Utils.inLimit(value, operator, parseFloat(targetString), reversed))
-                    return false;
-            } else if (typeof value === "bigint") {
-                if (Utils.inLimit(value, operator, BigInt(targetString), reversed))
-                    return false;
-            } else if (value instanceof Date) {
-                if (Utils.inLimit(value, operator, new Date(targetString), reversed))
-                    return false;
-            } else
-                throw "Unsupported type for 'inRange()': " + (typeof value);
+export function inRange(value: any, range: string): boolean {
+    for (let limit of range.split(",")) {
+        limit = limit.trim();
+        let operator: string;
+        let targetString: string;
+        let reversed: boolean;
+        if (limit.startsWith("[")) {
+            operator = "<";
+            targetString = limit.substring(1);
+            reversed = false;
+        } else if (limit.startsWith("(")) {
+            operator = ">";
+            targetString = limit.substring(1);
+            reversed = true;
+        } else if (limit.endsWith("]")) {
+            operator = ">";
+            targetString = limit.substring(0, limit.length - 1);
+            reversed = false;
+        } else if (limit.endsWith(")")) {
+            operator = "<";
+            targetString = limit.substring(0, limit.length - 1);
+            reversed = true;
+        } else {
+            operator = "=";
+            targetString = limit;
+            reversed = true;
         }
-        return true;
+        if (typeof value === "number") {
+            if (inLimit(value, operator, parseFloat(targetString), reversed))
+                return false;
+        } else if (typeof value === "bigint") {
+            if (inLimit(value, operator, BigInt(targetString), reversed))
+                return false;
+        } else if (value instanceof Date) {
+            if (inLimit(value, operator, new Date(targetString), reversed))
+                return false;
+        } else
+            throw "Unsupported type for 'inRange()': " + (typeof value);
     }
+    return true;
+}
 
-    static buildRuntimeCondition(condition: Condition): RuntimeCondition {
-        let t = condition.type.trim().toLowerCase();
-        let reversed = false;
-        while (t.startsWith("!")) {
-            reversed = !reversed;
-            t = t.substring(1).trim();
-        }
-        switch (t) {
-            case "and":
-                return new And(reversed, condition.field, condition.conditions!.map(c => this.buildRuntimeCondition(c)));
-            case "or":
-                return new Or(reversed, condition.field, condition.conditions!.map(c => this.buildRuntimeCondition(c)));
-            case "null":
-                return new Null(reversed, condition.field);
-            case "in":
-                return new In(reversed, condition.field, condition.args!);
-            case "blank":
-                return new Blank(reversed, condition.field);
-            case "regex":
-                return new RegEx(reversed, condition.field, condition.arg!);
-            case "bytes":
-                return new Bytes(reversed, condition.field, condition.arg!);
-            case "length":
-                return new Length(reversed, condition.field, condition.arg!);
-            case "contains":
-                return new Contains(reversed, condition.field, condition.arg!);
-            case "range":
-                return new Range(reversed, condition.field, condition.arg!);
-            case "true":
-                return new True(reversed, condition.field);
-            default:
-                throw "Unsupported condition type: " + t;
-        }
+export function buildRuntimeCondition(condition: Condition): RuntimeCondition {
+    let t = condition.type.trim().toLowerCase();
+    let reversed = false;
+    while (t.startsWith("!")) {
+        reversed = !reversed;
+        t = t.substring(1).trim();
+    }
+    switch (t) {
+        case "and":
+            return new And(reversed, condition.field, condition.conditions!.map(c => buildRuntimeCondition(c)));
+        case "or":
+            return new Or(reversed, condition.field, condition.conditions!.map(c => buildRuntimeCondition(c)));
+        case "null":
+            return new Null(reversed, condition.field);
+        case "in":
+            return new In(reversed, condition.field, condition.args!);
+        case "blank":
+            return new Blank(reversed, condition.field);
+        case "regex":
+            return new RegEx(reversed, condition.field, condition.arg!);
+        case "bytes":
+            return new Bytes(reversed, condition.field, condition.arg!);
+        case "length":
+            return new Length(reversed, condition.field, condition.arg!);
+        case "contains":
+            return new Contains(reversed, condition.field, condition.arg!);
+        case "range":
+            return new Range(reversed, condition.field, condition.arg!);
+        case "true":
+            return new True(reversed, condition.field);
+        default:
+            throw "Unsupported condition type: " + t;
     }
 }

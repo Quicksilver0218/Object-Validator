@@ -1,5 +1,5 @@
 # Object-Validator [![NuGet](https://img.shields.io/nuget/v/Quicksilver0218.ObjectValidator)](https://www.nuget.org/packages/Quicksilver0218.ObjectValidator) [![Maven](https://img.shields.io/maven-central/v/io.github.quicksilver0218/com.quicksilver.objectvalidator)](https://central.sonatype.com/artifact/io.github.quicksilver0218/com.quicksilver.objectvalidator) [![npm](https://img.shields.io/npm/v/%40quicksilver0218%2Fobject-validator)](https://www.npmjs.com/package/@quicksilver0218/object-validator)
-A library providing functions that let users validate the values in objects with JSON-formatted rules.
+A library providing functions that let users validate the values in objects with YAML-formatted rules.
 
 ## Installation
 [NuGet Gallery](https://www.nuget.org/packages/Quicksilver0218.ObjectValidator)
@@ -10,8 +10,8 @@ A library providing functions that let users validate the values in objects with
 
 ## Usage
 [Document](Document.md)
-### JSON Rule List
-First of all, a list of rules in JSON format should be provided. Here is the structure of the JSON file:
+### JSON / YAML Rule List
+First of all, a list of rules in JSON / YAML format should be provided. Here is the structure of the list:
 ```ts
 type Root = {
     condition: Condition;
@@ -64,7 +64,7 @@ For example:
 ```cs
 using Quicksilver.ObjectValidator;
 
-Validator validator = new(File.ReadAllText("path/validation-rules.json"));
+Validator validator = new(File.OpenText("path/validation-rules.json"));
 ValidationResult validationResult = validator.Validate(myObject);
 ```
 
@@ -72,7 +72,7 @@ ValidationResult validationResult = validator.Validate(myObject);
 ```java
 import com.quicksilver.objectvalidator.Validator;
 // ...
-Validator validator = new Validator(Files.readString(Paths.get(getClass().getClassLoader().getResource("path/validation-rules.json").toURI())));
+Validator validator = new Validator(getClass().getResource("/path/validation-rules.json"));
 ValidationResult validationResult = validator.Validate(myObject);
 ```
 

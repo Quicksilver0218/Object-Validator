@@ -1,5 +1,6 @@
 package com.quicksilver.objectvalidator.runtime;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,12 +15,14 @@ public abstract class Condition {
         this.fieldExpression = fieldExpression;
     }
 
-    private static void handleField(Object obj, String field, List<Object> values) throws ReflectiveOperationException {
+    private static void handleField(Object obj, String fieldName, List<Object> values) throws ReflectiveOperationException {
         Class<?> clazz = obj.getClass();
         ReflectiveOperationException e = null;
         do {
             try {
-                values.add(clazz.getDeclaredField(field).get(obj));
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                values.add(field.get(obj));
                 return;
             } catch (ReflectiveOperationException ex) {
                 if (e == null)

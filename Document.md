@@ -1,5 +1,5 @@
 # Table of Contents
-- [JSON Rule List](#json-rule-list)
+- [JSON / YAML Rule List](#json--yaml-rule-list)
     - [Field Expression](#field-expression)
         - [General](#general)
         - [Iterable](#iterable)
@@ -40,7 +40,7 @@
         - [Rule](#rule-2)
         - [Condition](#condition-2)
 
-## JSON Rule List
+## JSON / YAML Rule List
 Structure of the rule list:
 
 ```ts
@@ -224,7 +224,7 @@ A NOT gate can be applied to a condition by adding `!` to the beginning. e.g. `!
 `bytes` checks whether the length of the value in UTF-8 encoding in bytes is within the given range. It only supports string values. The `arg` field is required as the range expression for this condition type. (Please see [Range Expression](#range-expression) for detail.) The condition is passed when the length of the value in UTF-8 encoding in bytes is within the given range.
 
 #### Length
-`length` checks whether the length of the value is within the given range. It supports string-like and array-like values. The `arg` field is required as the range expression for this condition type. (Please see [Range Expression](#range-expression) for detail.) The condition is passed when the length of the value is within the given range.
+`length` checks whether the length of the value is within the given range. It supports string-like, array-like, `Map` (`Dictionary`) and `Set` values. The `arg` field is required as the range expression for this condition type. (Please see [Range Expression](#range-expression) for detail.) The condition is passed when the length of the value is within the given range.
 
 #### Contains
 `contains` checks whether the value contains the given string or null value. It supports string and iterable values. The `arg` field is required as the given string or null value. For string values, the condition is passed when the value contains the given string. For iterable values, the condition is passed when any of the string representation of the elements equals to the given string or null value. The string representation is obtained by calling `toString()`/`ToString()`.
@@ -251,7 +251,8 @@ namespace Quicksilver.ObjectValidator;
 ##### Constructors
 ```cs
 public Validator(Rule[] rules, bool fastFail = false);
-public Validator(string rulesJson, bool fastFail = false);
+public Validator(string rulesYaml, bool fastFail = false);
+public Validator(TextReader reader, bool fastFail = false);
 ```
 
 ##### Fields
@@ -332,7 +333,9 @@ package com.quicksilver.objectvalidator;
 ##### Constructors
 ```java
 public Validator(Rule[] rules, boolean fastFail = false);
-public Validator(String rulesJson, boolean fastFail = false) throws JsonMappingException, JsonProcessingException;
+public Validator(String rulesYaml, boolean fastFail = false) throws JsonMappingException, JsonProcessingException;
+public Validator(URL url, boolean fastFail = false) throws IOException;
+public Validator(InputStream stream, boolean fastFail = false) throws IOException;
 ```
 
 ##### Fields
