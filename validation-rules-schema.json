@@ -20,26 +20,6 @@
           "field": {
             "description": "The field to be checked",
             "type": "string"
-          },
-          "arg": {
-            "description": "The argument of the condition",
-            "type": "string"
-          },
-          "args": {
-            "description": "The arguments of the condition",
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minItems": 1,
-              "uniqueItems": true
-            }
-          },
-          "conditions": {
-            "description": "The sub-conditions of the condition",
-            "type": "array",
-            "items": {
-              "$ref": "#/items/properties/condition"
-            }
           }
         },
         "required": ["type"],
@@ -49,21 +29,46 @@
               "type": { "enum": [
                 "regex", "bytes", "length", "contains", "range",
                 "!regex", "!bytes", "!length", "!contains", "!range"
-              ] }
+              ] },
+              "arg": {
+                "description": "The argument of the condition",
+                "type": "string"
+              }
             },
             "required": ["arg"]
           },
           {
             "properties": {
-              "type": { "enum": ["in", "!in"] }
+              "type": { "enum": ["in", "!in"] },
+              "args": {
+                "description": "The arguments of the condition",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              }
             },
             "required": ["args"]
           },
           {
             "properties": {
-              "type": { "enum": ["and", "or", "!and", "!or"] }
+              "type": { "enum": ["and", "or", "!and", "!or"] },
+              "conditions": {
+                "description": "The sub-conditions of the condition",
+                "type": "array",
+                "items": {
+                  "$ref": "#/items/properties/condition"
+                }
+              }
             },
             "required": ["conditions"]
+          },
+          {
+            "properties": {
+              "type": { "enum": ["null", "blank", "true", "!null", "!blank", "!true"] }
+            }
           }
         ],
         "defaultSnippets": [
