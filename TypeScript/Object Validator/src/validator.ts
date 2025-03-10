@@ -12,7 +12,7 @@ export default class Validator {
         this.fastFail = fastFail;
     }
 
-    validate(obj: any): ValidationResult {
+    validate(obj: unknown): ValidationResult {
         let valid = true;
         const failedFields = new Set<string>();
         const failures: ValidationFailure[] = [];

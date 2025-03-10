@@ -8,7 +8,7 @@ export default class In extends Condition {
         this._args = args;
     }
 
-    protected override isFulfilledBy(value: any): boolean {
+    protected override isFulfilledBy(value: unknown): boolean {
         if (value === undefined)
             return false;
         if (value === null) {

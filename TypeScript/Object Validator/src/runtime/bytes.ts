@@ -9,7 +9,7 @@ export default class Bytes extends Condition {
         this._range = range;
     }
 
-    protected override isFulfilledBy(value: any): boolean {
+    protected override isFulfilledBy(value: unknown): boolean {
         if (typeof value === "string")
             return inRange(new Blob([value]).size, this._range);
         throw "Unsupported type for 'bytes': " + (typeof value);

@@ -9,7 +9,7 @@ export default class Length extends Condition {
         this._range = range;
     }
 
-    protected override isFulfilledBy(value: any): boolean {
+    protected override isFulfilledBy(value: unknown): boolean {
         if (typeof value === "string")
             return inRange(value.length, this._range);
         if (value instanceof Object) {

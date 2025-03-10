@@ -1,0 +1,22 @@
+name: Publish NuGet package
+on:
+  workflow_dispatch:
+jobs:
+  publish_nuget:
+    name: Publish package to the NuGet Gallery
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: './C Sharp/Object Validator'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - name: Publish package
+        run: |
+          dotnet pack --configuration Release
+          dotnet nuget push bin/Release/Quicksilver0218.ObjectValidator.*.nupkg --api-key "$NUGET_KEY" --source https://api.nuget.org/v3/index.json
+        env:
+          NUGET_KEY: ${{ secrets.NUGET_KEY }}

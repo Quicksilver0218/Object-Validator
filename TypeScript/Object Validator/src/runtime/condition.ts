@@ -1,16 +1,16 @@
-function handleField(obj: object, field: string, values: object[]) {
+function handleField(obj: object, field: string, values: unknown[]) {
     values.push(obj[field]);
 }
 
-function handleIndex(list: any[], index: number, values: object[]) {
+function handleIndex(list: { [key: number]: unknown }, index: number, values: unknown[]) {
     values.push(list[index]);
 }
 
-function handleKey(map: Map<any, any>, key: string, values: object[]) {
+function handleKey(map: Map<unknown, unknown>, key: string, values: unknown[]) {
     values.push(map.get(key));
 }
 
-function handleValues(values: object[], name: string, newValues: object[]) {
+function handleValues(values: unknown[], name: string, newValues: unknown[]) {
     for (const value of values)
         if (value == null)
             newValues.push(value);
@@ -37,20 +37,20 @@ export default abstract class Condition {
         this._fieldExpression = fieldExpression;
     }
 
-    check(root: any, rootFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean {
+    check(root: unknown, rootFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean {
         let values = [root];
         if (this._fieldExpression != null) {
             if (root != null) {
                 let fullName = "";
                 for (const name of this._fieldExpression.split(".")) {
-                    const newValues: any[] = [];
+                    const newValues: unknown[] = [];
                     fullName += name;
                     if (fullName === "*")
                         for (const o of values)
                             if (o == null)
                                 newValues.push(o);
                             else if (typeof o[Symbol.iterator] === "function")
-                                for (const item of o)
+                                for (const item of o as Iterable<unknown>)
                                     newValues.push(item);
                             else
                                 throw "Unsupported type for iteration: " + (typeof o);
@@ -74,14 +74,14 @@ export default abstract class Condition {
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        handleIndex(o, parseInt(fullName), newValues);
+                                        handleIndex(o as { [key: number]: unknown }, parseInt(fullName), newValues);
                                 break;
                             case "K":
                                 for (const o of values)
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        handleKey(o, fullName, newValues);
+                                        handleKey(o as Map<unknown, unknown>, fullName, newValues);
                                 break;
                             case "*":
                                 handleValues(values, fullName + "*", newValues);
@@ -120,5 +120,5 @@ export default abstract class Condition {
         return true;
     }
 
-    protected abstract isFulfilledBy(value: any, fullFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean;
+    protected abstract isFulfilledBy(value: unknown, fullFieldExpression: string | null, passedFields: Set<string>, failedFields: Set<string>): boolean;
 }

@@ -8,11 +8,11 @@ export default class Contains extends Condition {
         this._arg = arg;
     }
 
-    protected override isFulfilledBy(value: any): boolean {
+    protected override isFulfilledBy(value: unknown): boolean {
         if (typeof value === "string")
             return value.includes(this._arg!);
         if (value instanceof Object && typeof value[Symbol.iterator] === "function") {
-            for (const o of value)
+            for (const o of value as Iterable<unknown>)
                 if (o === undefined)
                     continue;
                 else if (o === null) {

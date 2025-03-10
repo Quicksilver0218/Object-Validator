@@ -9,7 +9,7 @@ export default class Range extends Condition {
         this._range = range;
     }
 
-    protected override isFulfilledBy(value: any): boolean {
+    protected override isFulfilledBy(value: unknown): boolean {
         if (!(typeof value === "number" || typeof value === "bigint" || value instanceof Date))
             throw "Unsupported type for 'range': " + (typeof value);
         return inRange(value, this._range);

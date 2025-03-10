@@ -12,20 +12,24 @@ import Range from "./range";
 import RegEx from "./reg-ex";
 import True from "./true";
 
-function inLimit(value: any, operator: string, target: any, reversed: boolean): boolean {
+function inLimit(value: number | bigint | { [Symbol.toPrimitive](hint: "number"): number }, operator: string, target: number | bigint | { [Symbol.toPrimitive](hint: "number"): number }, reversed: boolean): boolean {
     switch (operator) {
         case "<":
             return value < target !== reversed;
         case ">":
             return value > target !== reversed;
         case "=":
-            return +value === +target !== reversed;
+            if (typeof value === "object")
+                value = +value;
+            if (typeof target === "object")
+                target = +target;
+            return value === target !== reversed;
         default:
             throw "Unsupported operator: " + operator;
     }
 }
 
-export function inRange(value: any, range: string): boolean {
+export function inRange(value: unknown, range: string): boolean {
     for (let limit of range.split(",")) {
         limit = limit.trim();
         let operator: string;
