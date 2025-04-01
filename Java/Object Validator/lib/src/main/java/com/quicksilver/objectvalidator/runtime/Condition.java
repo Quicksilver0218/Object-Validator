@@ -45,16 +45,17 @@ public abstract class Condition {
 
     private static void handleValues(List<Object> values, String name, List<Object> newValues) throws ReflectiveOperationException {
         for (Object value : values)
-            if (value == null)
-                newValues.add(null);
-            else if (value instanceof Map m)
-                handleKey(m, name, newValues);
-            else {
-                try {
+            switch (value) {
+                case null -> newValues.add(null);
+                case Map<?, ?> m -> handleKey(m, name, newValues);
+                default -> {
                     if (value instanceof Object[] || value instanceof List)
-                        handleIndex(value, Integer.parseInt(name), newValues);
-                } catch (NumberFormatException unused) {}
-                handleField(value, name, newValues);
+                        try {
+                            handleIndex(value, Integer.parseInt(name), newValues);
+                            return;
+                        } catch (NumberFormatException unused) {}
+                    handleField(value, name, newValues);
+                }
             }
     }
 
@@ -68,50 +69,50 @@ public abstract class Condition {
                     fullName += name;
                     if (fullName.equals("*"))
                         for (Object o : values)
-                            if (o == null)
-                                newValues.add(null);
-                            else if (o instanceof Object[] a)
-                                for (Object item : a)
-                                    newValues.add(item);
-                            else if (o instanceof Iterable e)
-                                for (Object item : e)
-                                    newValues.add(item);
-                            else
-                                throw new RuntimeException("Unsupported type for iteration: " + o.getClass());
+                            switch (o) {
+                                case null -> newValues.add(null);
+                                case Object[] a -> {
+                                    for (Object item : a)
+                                        newValues.add(item);
+                                }
+                                case Iterable<?> e -> {
+                                    for (Object item : e)
+                                        newValues.add(item);
+                                }
+                                default -> throw new RuntimeException("Unsupported type for iteration: " + o.getClass());
+                            }
                     else if (name.length() >= 3 && name.substring(name.length() - 3, name.length() - 1).equals("//"))
                         fullName = fullName.substring(0, fullName.length() - 3) + fullName.substring(fullName.length() - 2);
                     else if (name.length() >= 2 && name.charAt(name.length() - 2) == '/') {
                         fullName = fullName.substring(0, fullName.length() - 2);
                         switch (Character.toUpperCase(name.charAt(name.length() - 1))) {
-                            case 'C':
+                            case 'C' -> {
                                 fullName += ".";
                                 continue;
-                            case 'F':
+                            }
+                            case 'F' -> {
                                 for (Object o : values)
                                     if (o == null)
                                         newValues.add(null);
                                     else
                                         handleField(o, fullName, newValues);
-                                break;
-                            case 'I':
+                            }
+                            case 'I' -> {
                                 for (Object o : values)
                                     if (o == null)
                                         newValues.add(null);
                                     else
                                         handleIndex(o, Integer.parseInt(fullName), newValues);
-                                break;
-                            case 'K':
+                            }
+                            case 'K' -> {
                                 for (Object o : values)
                                     if (o == null)
                                         newValues.add(null);
                                     else
                                         handleKey((Map<?, ?>)o, fullName, newValues);
-                                break;
-                            case '*':
-                                handleValues(values, fullName + "*", newValues);
-                                break;
-                            default:
-                                throw new RuntimeException("Unsupported suffix: " + name.charAt(name.length() - 1));
+                            }
+                            case '*' -> handleValues(values, fullName + "*", newValues);
+                            default -> throw new RuntimeException("Unsupported suffix: " + name.charAt(name.length() - 1));
                         }
                     } else
                         handleValues(values, fullName, newValues);
