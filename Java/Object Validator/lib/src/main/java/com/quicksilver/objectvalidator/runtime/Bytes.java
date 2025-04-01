@@ -29,10 +29,10 @@ public class Bytes extends Condition {
 
     @Override
     protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        if (value == null)
-            throw new RuntimeException("Null values are not supported for 'bytes'.");
-        if (value instanceof CharSequence s)
-            return Utils.inRange(utf8ByteLength(s), range);
-        throw new RuntimeException("Unsupported type for 'bytes': " + value.getClass());
+        return switch (value) {
+            case null -> throw new RuntimeException("Null values are not supported for 'bytes'.");
+            case CharSequence s -> Utils.inRange(utf8ByteLength(s), range);
+            default -> throw new RuntimeException("Unsupported type for 'bytes': " + value.getClass());
+        };
     }
 }

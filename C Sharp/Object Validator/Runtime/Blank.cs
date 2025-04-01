@@ -3,10 +3,10 @@ class Blank(bool reversed, string? fieldExpression) : Condition(reversed, fieldE
 {
     protected override bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
     {
-        if (value == null)
-            throw new Exception("Null values are not supported for 'blank'.");
-        if (value is string s)
-            return string.IsNullOrWhiteSpace(s);
-        throw new Exception("Unsupported type for 'blank': " + value.GetType());
+        return value switch {
+            null => throw new Exception("Null values are not supported for 'blank'."),
+            string s => string.IsNullOrWhiteSpace(s),
+            _ => throw new Exception("Unsupported type for 'blank': " + value.GetType())
+        };
     }
 }

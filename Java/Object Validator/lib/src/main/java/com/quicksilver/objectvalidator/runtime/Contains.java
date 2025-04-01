@@ -12,28 +12,28 @@ public class Contains extends Condition {
 
     @Override
     protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        if (value == null)
-            throw new RuntimeException("Null values are not supported for 'contains'.");
-        if (value instanceof String s)
-            return s.contains(arg);
-        if (value instanceof Object[] a) {
-            for (Object o : a)
-                if (o == null) {
-                    if (arg == null)
-                        return true;
-                } else if (o.toString().equals(arg))
-                    return true;
-            return false;
-        }
-        if (value instanceof Iterable i) {
-            for (Object o : i)
-                if (o == null) {
-                    if (arg == null)
-                        return true;
-                } else if (o.toString().equals(arg))
-                    return true;
-            return false;
-        }
-        throw new RuntimeException("Unsupported type for 'contains': " + value.getClass());
+        return switch (value) {
+            case null -> throw new RuntimeException("Null values are not supported for 'contains'.");
+            case String s -> s.contains(arg);
+            case Object[] a -> {
+                for (Object o : a)
+                    if (o == null) {
+                        if (arg == null)
+                            yield true;
+                    } else if (o.toString().equals(arg))
+                        yield true;
+                yield false;
+            }
+            case Iterable<?> i -> {
+                for (Object o : i)
+                    if (o == null) {
+                        if (arg == null)
+                            yield true;
+                    } else if (o.toString().equals(arg))
+                        yield true;
+                yield false;
+            }
+            default -> throw new RuntimeException("Unsupported type for 'contains': " + value.getClass());
+        };
     }
 }

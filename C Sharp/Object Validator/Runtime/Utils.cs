@@ -41,47 +41,62 @@ class Utils
                 targetString = limit;
                 reversed = true;
             }
-            if (value is sbyte sb) {
-                if (InLimit(sb, operator_, sbyte.Parse(targetString), reversed))
-                    return false;
-            } else if (value is byte b) {
-                if (InLimit(b, operator_, byte.Parse(targetString), reversed))
-                    return false;
-            } else if (value is short s) {
-                if (InLimit(s, operator_, short.Parse(targetString), reversed))
-                    return false;
-            } else if (value is ushort us) {
-                if (InLimit(us, operator_, ushort.Parse(targetString), reversed))
-                    return false;
-            } else if (value is int i) {
-                if (InLimit(i, operator_, int.Parse(targetString), reversed))
-                    return false;
-            } else if (value is uint ui) {
-                if (InLimit(ui, operator_, uint.Parse(targetString), reversed))
-                    return false;
-            } else if (value is long l) {
-                if (InLimit(l, operator_, long.Parse(targetString), reversed))
-                    return false;
-            } else if (value is ulong ul) {
-                if (InLimit(ul, operator_, ulong.Parse(targetString), reversed))
-                    return false;
-            } else if (value is BigInteger bi) {
-                if (InLimit(bi, operator_, BigInteger.Parse(targetString), reversed))
-                    return false;
-            } else if (value is float f) {
-                if (InLimit(f, operator_, float.Parse(targetString), reversed))
-                    return false;
-            } else if (value is double d) {
-                if (InLimit(d, operator_, double.Parse(targetString), reversed))
-                    return false;
-            } else if (value is decimal dc) {
-                if (InLimit(dc, operator_, decimal.Parse(targetString), reversed))
-                    return false;
-            } else if (value is DateTime dt) {
-                if (InLimit(dt, operator_, DateTime.Parse(targetString, null, System.Globalization.DateTimeStyles.RoundtripKind), reversed))
-                    return false;
-            } else
-                throw new Exception("Unsupported type for 'InRange()': " + value.GetType());
+            switch (value) {
+                case sbyte sb:
+                    if (InLimit(sb, operator_, sbyte.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case byte b:
+                    if (InLimit(b, operator_, byte.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case short s:
+                    if (InLimit(s, operator_, short.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case ushort us:
+                    if (InLimit(us, operator_, ushort.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case int i:
+                    if (InLimit(i, operator_, int.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case uint ui:
+                    if (InLimit(ui, operator_, uint.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case long l:
+                    if (InLimit(l, operator_, long.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case ulong ul:
+                    if (InLimit(ul, operator_, ulong.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case BigInteger bi:
+                    if (InLimit(bi, operator_, BigInteger.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case float f:
+                    if (InLimit(f, operator_, float.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case double d:
+                    if (InLimit(d, operator_, double.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case decimal de:
+                    if (InLimit(de, operator_, decimal.Parse(targetString), reversed))
+                        return false;
+                    break;
+                case DateTime dt:
+                    if (InLimit(dt, operator_, DateTime.Parse(targetString, null, System.Globalization.DateTimeStyles.RoundtripKind), reversed))
+                        return false;
+                    break;
+                default:
+                    throw new Exception("Unsupported type for 'inRange()': " + value.GetType());
+            }
         }
         return true;
     }

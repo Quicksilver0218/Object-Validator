@@ -14,16 +14,13 @@ public class Length extends Condition {
 
     @Override
     protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        if (value == null)
-            throw new RuntimeException("Null values are not supported for 'length'.");
-        if (value instanceof CharSequence s)
-            return Utils.inRange(s.length(), range);
-        if (value instanceof Object[] a)
-            return Utils.inRange(a.length, range);
-        if (value instanceof Collection c)
-            return Utils.inRange(c.size(), range);
-        if (value instanceof Map m)
-            return Utils.inRange(m.size(), range);
-        throw new RuntimeException("Unsupported type for 'length': " + value.getClass());
+        return switch (value) {
+            case null -> throw new RuntimeException("Null values are not supported for 'length'.");
+            case CharSequence s -> Utils.inRange(s.length(), range);
+            case Object[] a -> Utils.inRange(a.length, range);
+            case Collection<?> c -> Utils.inRange(c.size(), range);
+            case Map<?, ?> m -> Utils.inRange(m.size(), range);
+            default -> throw new RuntimeException("Unsupported type for 'length': " + value.getClass());
+        };
     }
 }

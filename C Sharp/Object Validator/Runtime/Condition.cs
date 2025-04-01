@@ -21,14 +21,20 @@ abstract class Condition(bool reversed, string? fieldExpression)
 
     private static void HandleValues(List<object?> values, string name, List<object?> newValues) {
         foreach (object? value in values)
-            if (value == null)
-                newValues.Add(null);
-            else if (value is IDictionary d)
-                HandleKey(d, name, newValues);
-            else if (value is IList l && int.TryParse(name, out int index))
-                HandleIndex(l, index, newValues);
-            else
-                HandleField(value, name, newValues);
+            switch (value) {
+                case null:
+                    newValues.Add(null);
+                    break;
+                case IDictionary d:
+                    HandleKey(d, name, newValues);
+                    break;
+                case IList l when int.TryParse(name, out int index):
+                    HandleIndex(l, index, newValues);
+                    break;
+                default:
+                    HandleField(value, name, newValues);
+                    break;
+            }
     }
 
     internal bool Check(object? root, string? rootFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields) {
@@ -41,13 +47,17 @@ abstract class Condition(bool reversed, string? fieldExpression)
                     fullName += name;
                     if (fullName == "*")
                         foreach (object? o in values)
-                            if (o == null)
-                                newValues.Add(null);
-                            else if (o is IEnumerable e)
-                                foreach (object item in e)
-                                    newValues.Add(item);
-                            else
-                                throw new Exception("Unsupported type for iteration: " + o.GetType());
+                            switch (o) {
+                                case null:
+                                    newValues.Add(null);
+                                    break;
+                                case IEnumerable e:
+                                    foreach (object item in e)
+                                        newValues.Add(item);
+                                    break;
+                                default:
+                                    throw new Exception("Unsupported type for iteration: " + o.GetType());
+                            }
                     else if (name.Length >= 3 && name[^3..^1] == "//")
                         fullName = fullName[0..^3] + fullName[^2..];
                     else if (name.Length >= 2 && name[^2] == '/') {

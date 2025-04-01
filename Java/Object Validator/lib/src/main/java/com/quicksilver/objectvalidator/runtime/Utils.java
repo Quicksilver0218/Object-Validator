@@ -9,16 +9,12 @@ import java.util.Date;
 class Utils {
     private static <T extends Comparable<T>> boolean inLimit(T value, char operator, T target, boolean reversed) {
         int result = value.compareTo(target);
-        switch (operator) {
-            case '<':
-                return result < 0 ^ reversed;
-            case '>':
-                return result > 0 ^ reversed;
-            case '=':
-                return result == 0 ^ reversed;
-            default:
-                throw new RuntimeException("Unsupported operator: " + operator);
-        }
+        return switch (operator) {
+            case '<' -> result < 0 ^ reversed;
+            case '>' -> result > 0 ^ reversed;
+            case '=' -> result == 0 ^ reversed;
+            default -> throw new RuntimeException("Unsupported operator: " + operator);
+        };
     }
 
     static boolean inRange(Object value, String range) {
@@ -48,35 +44,45 @@ class Utils {
                 targetString = limit;
                 reversed = true;
             }
-            if (value instanceof Byte b) {
-                if (inLimit(b, operator, Byte.parseByte(targetString), reversed))
-                    return false;
-            } else if (value instanceof Short s) {
-                if (inLimit(s, operator, Short.parseShort(targetString), reversed))
-                    return false;
-            } else if (value instanceof Integer i) {
-                if (inLimit(i, operator, Integer.parseInt(targetString), reversed))
-                    return false;
-            } else if (value instanceof Long l) {
-                if (inLimit(l, operator, Long.parseLong(targetString), reversed))
-                    return false;
-            } else if (value instanceof BigInteger bi) {
-                if (inLimit(bi, operator, new BigInteger(targetString), reversed))
-                    return false;
-            } else if (value instanceof Float f) {
-                if (inLimit(f, operator, Float.parseFloat(targetString), reversed))
-                    return false;
-            } else if (value instanceof Double d) {
-                if (inLimit(d, operator, Double.parseDouble(targetString), reversed))
-                    return false;
-            } else if (value instanceof BigDecimal bd) {
-                if (inLimit(bd, operator, new BigDecimal(targetString), reversed))
-                    return false;
-            } else if (value instanceof Date d) {
-                if (inLimit(d, operator, Date.from(ZonedDateTime.parse(targetString).toInstant()), reversed))
-                    return false;
-            } else
-                throw new RuntimeException("Unsupported type for 'inRange()': " + value.getClass());
+            switch (value) {
+                case Byte b -> {
+                    if (inLimit(b, operator, Byte.parseByte(targetString), reversed))
+                        return false;
+                }
+                case Short s -> {
+                    if (inLimit(s, operator, Short.parseShort(targetString), reversed))
+                        return false;
+                }
+                case Integer i -> {
+                    if (inLimit(i, operator, Integer.parseInt(targetString), reversed))
+                        return false;
+                }
+                case Long l -> {
+                    if (inLimit(l, operator, Long.parseLong(targetString), reversed))
+                        return false;
+                }
+                case BigInteger bi -> {
+                    if (inLimit(bi, operator, new BigInteger(targetString), reversed))
+                        return false;
+                }
+                case Float f -> {
+                    if (inLimit(f, operator, Float.parseFloat(targetString), reversed))
+                        return false;
+                }
+                case Double d -> {
+                    if (inLimit(d, operator, Double.parseDouble(targetString), reversed))
+                        return false;
+                }
+                case BigDecimal bd -> {
+                    if (inLimit(bd, operator, new BigDecimal(targetString), reversed))
+                        return false;
+                }
+                case Date d -> {
+                    if (inLimit(d, operator, Date.from(ZonedDateTime.parse(targetString).toInstant()), reversed))
+                        return false;
+                }
+                default -> throw new RuntimeException("Unsupported type for 'inRange()': " + value.getClass());
+            }
         }
         return true;
     }

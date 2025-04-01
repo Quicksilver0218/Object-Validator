@@ -23,17 +23,19 @@ internal sealed class TypeConverter : IYamlTypeConverter
                     state = 1;
                     break;
                 case 1:
-                    if (parser.Current is SequenceEnd) {
-                        parser.MoveNext();
-                        if (parser.Current is not DocumentEnd)
-                            throw new YamlException("Expected DocumentEnd");
-                        return rules.ToArray();
+                    switch (parser.Current) {
+                        case SequenceEnd:
+                            parser.MoveNext();
+                            if (parser.Current is not DocumentEnd)
+                                throw new YamlException("Expected DocumentEnd");
+                            return rules.ToArray();
+                        case MappingStart:
+                            state = 2;
+                            break;
+                        default:
+                            throw new YamlException("Expected MappingStart or SequenceEnd");
                     }
-                    if (parser.Current is MappingStart) {
-                        state = 2;
-                        break;
-                    }
-                    throw new YamlException("Expected MappingStart or SequenceEnd");
+                    break;
                 case 2:
                     Condition? condition = null;
                     int? id = null;

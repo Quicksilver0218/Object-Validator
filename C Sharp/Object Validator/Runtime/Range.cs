@@ -7,11 +7,11 @@ class Range(bool reversed, string? fieldExpression, string range) : Condition(re
 
     protected override bool IsFulfilledBy(object? value, string? fullFieldExpression, HashSet<string> passedFields, HashSet<string> failedFields)
     {
-        if (value == null)
-            throw new Exception("Null values are not supported for 'range'.");
-        if (!(value is sbyte || value is byte || value is short || value is ushort || value is int || value is uint || value is long || value is ulong || value is BigInteger ||
-                value is float || value is double || value is decimal || value is DateTime))
-            throw new Exception("Unsupported type for 'range': " + value.GetType());
-        return Utils.InRange(value, range);
+        return value switch
+        {
+            null => throw new Exception("Null values are not supported for 'range'."),
+            sbyte or byte or short or ushort or int or uint or long or ulong or BigInteger or float or double or decimal or DateTime => Utils.InRange(value, range),
+            _ => throw new Exception("Unsupported type for 'range': " + value.GetType()),
+        };
     }
 }
