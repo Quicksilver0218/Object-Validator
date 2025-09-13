@@ -18,7 +18,7 @@ public class Validator {
     public boolean fastFail;
 
     public Validator(com.quicksilver.objectvalidator.config.Rule[] rules, boolean fastFail) {
-        this.rules = Arrays.stream(rules).map(r -> new Rule(r)).toArray(Rule[]::new);
+        this.rules = Arrays.stream(rules).map(Rule::new).toArray(Rule[]::new);
         this.fastFail = fastFail;
     }
 
@@ -27,7 +27,7 @@ public class Validator {
     }
 
     public Validator(String rulesYaml, boolean fastFail) throws JsonMappingException, JsonProcessingException {
-        rules = Arrays.stream(objectMapper.readValue(rulesYaml, com.quicksilver.objectvalidator.config.Rule[].class)).map(r -> new Rule(r)).toArray(Rule[]::new);
+        rules = Arrays.stream(objectMapper.readValue(rulesYaml, com.quicksilver.objectvalidator.config.Rule[].class)).map(Rule::new).toArray(Rule[]::new);
         this.fastFail = fastFail;
     }
 
@@ -36,7 +36,7 @@ public class Validator {
     }
 
     public Validator(URL url, boolean fastFail) throws IOException {
-        rules = Arrays.stream(objectMapper.readValue(url, com.quicksilver.objectvalidator.config.Rule[].class)).map(r -> new Rule(r)).toArray(Rule[]::new);
+        rules = Arrays.stream(objectMapper.readValue(url, com.quicksilver.objectvalidator.config.Rule[].class)).map(Rule::new).toArray(Rule[]::new);
         this.fastFail = fastFail;
     }
 
@@ -45,7 +45,7 @@ public class Validator {
     }
 
     public Validator(InputStream stream, boolean fastFail) throws IOException {
-        rules = Arrays.stream(objectMapper.readValue(stream, com.quicksilver.objectvalidator.config.Rule[].class)).map(r -> new Rule(r)).toArray(Rule[]::new);
+        rules = Arrays.stream(objectMapper.readValue(stream, com.quicksilver.objectvalidator.config.Rule[].class)).map(Rule::new).toArray(Rule[]::new);
         this.fastFail = fastFail;
     }
 

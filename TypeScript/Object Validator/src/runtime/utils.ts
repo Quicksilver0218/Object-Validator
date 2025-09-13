@@ -80,9 +80,9 @@ export function buildRuntimeCondition(condition: Condition): RuntimeCondition {
     }
     switch (t) {
         case "and":
-            return new And(reversed, condition.field, condition.conditions!.map(c => buildRuntimeCondition(c)));
+            return new And(reversed, condition.field, condition.conditions!.map(buildRuntimeCondition));
         case "or":
-            return new Or(reversed, condition.field, condition.conditions!.map(c => buildRuntimeCondition(c)));
+            return new Or(reversed, condition.field, condition.conditions!.map(buildRuntimeCondition));
         case "null":
             return new Null(reversed, condition.field);
         case "in":
