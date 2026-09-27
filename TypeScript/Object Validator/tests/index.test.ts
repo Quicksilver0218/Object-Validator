@@ -2,13 +2,14 @@ import rules from "./rules.json";
 import { Validator } from "../src";
 
 const validator = new Validator(rules);
-function TestObject2(date: Date) {
-    this.testDateTime = date;
+class TestObject2 {
+    constructor(public testDateTime: Date) {}
+
+    toString(): string {
+        const s: string = this.testDateTime.toISOString();
+        return s.substring(0, s.indexOf("."));
+    }
 }
-TestObject2.prototype.toString = function() {
-    const s: string = this.testDateTime.toISOString();
-    return s.substring(0, s.indexOf("."));
-};
 const testObject = {
     testString: "test測試",
     testInt: 1,

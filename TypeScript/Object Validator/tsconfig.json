@@ -5,10 +5,12 @@
         "target": "ESNext",
         "strictNullChecks": true,
         "strictFunctionTypes": true,
+        "rootDir": ".",
         "outDir": "dist",
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "declaration": true
+        "declaration": true,
+        "types": ["jest"]
     },
     "include": [
         "src"

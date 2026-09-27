@@ -1,7 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
+import TerserPlugin from "terser-webpack-plugin";
 
 export default {
+  mode: "production",
   entry: "./src/index.ts",
   module: {
     rules: [
@@ -24,5 +26,19 @@ export default {
   },
   experiments: {
     outputModule: true
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          mangle: {
+            properties: {
+              regex: /_.+/,
+            },
+          },
+        },
+      }),
+    ],
   },
 };

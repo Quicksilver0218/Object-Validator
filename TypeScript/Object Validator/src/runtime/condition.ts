@@ -1,8 +1,8 @@
-function handleField(obj: object, field: string, values: unknown[]) {
+function handleField(obj: Record<string, unknown>, field: string, values: unknown[]) {
     values.push(obj[field]);
 }
 
-function handleIndex(list: { [key: number]: unknown }, index: number, values: unknown[]) {
+function handleIndex(list: Record<number, unknown>, index: number, values: unknown[]) {
     values.push(list[index]);
 }
 
@@ -24,7 +24,7 @@ function handleValues(values: unknown[], name: string, newValues: unknown[]) {
                     return;
                 }
             }
-            handleField(value, name, newValues);
+            handleField(value as Record<string, unknown>, name, newValues);
         }
 }
 
@@ -49,13 +49,13 @@ export default abstract class Condition {
                         for (const o of values)
                             if (o == null)
                                 newValues.push(o);
-                            else if (typeof o[Symbol.iterator] === "function")
+                            else if (typeof (o as Record<symbol, unknown>)[Symbol.iterator] === "function")
                                 for (const item of o as Iterable<unknown>)
                                     newValues.push(item);
                             else
                                 throw "Unsupported type for iteration: " + (typeof o);
                     else if (name.length >= 3 && name.substring(name.length - 3, name.length - 1) === "//")
-                        fullName = fullName.substring(0, name.length - 3) + fullName.substring(fullName.length - 2);
+                        handleValues(values, fullName.substring(0, name.length - 3) + fullName.substring(fullName.length - 2), newValues);
                     else if (name.length >= 2 && name[name.length - 2] === "/") {
                         fullName = fullName.substring(0, fullName.length - 2);
                         switch (name[name.length - 1].toUpperCase()) {
@@ -67,14 +67,14 @@ export default abstract class Condition {
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        handleField(o, fullName, newValues);
+                                        handleField(o as Record<string, unknown>, fullName, newValues);
                                 break;
                             case "I":
                                 for (const o of values)
                                     if (o == null)
                                         newValues.push(o);
                                     else
-                                        handleIndex(o as { [key: number]: unknown }, parseInt(fullName), newValues);
+                                        handleIndex(o as Record<number, unknown>, parseInt(fullName), newValues);
                                 break;
                             case "K":
                                 for (const o of values)
@@ -90,7 +90,7 @@ export default abstract class Condition {
                                 throw "Unsupported suffix: " + name[name.length - 1];
                         }
                     } else
-                        handleValues(values, name, newValues);
+                        handleValues(values, fullName, newValues);
                     values = newValues;
                     fullName = "";
                 }

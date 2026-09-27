@@ -59,7 +59,7 @@ abstract class Condition(bool reversed, string? fieldExpression)
                                     throw new Exception("Unsupported type for iteration: " + o.GetType());
                             }
                     else if (name.Length >= 3 && name[^3..^1] == "//")
-                        fullName = fullName[0..^3] + fullName[^2..];
+                        HandleValues(values, fullName[0..^3] + fullName[^2..], newValues);
                     else if (name.Length >= 2 && name[^2] == '/') {
                         fullName = fullName[0..^2];
                         switch (char.ToUpper(name[^1])) {
@@ -94,7 +94,7 @@ abstract class Condition(bool reversed, string? fieldExpression)
                                 throw new Exception("Unsupported suffix: " + name[^1]);
                         }
                     } else
-                        HandleValues(values, name, newValues);
+                        HandleValues(values, fullName, newValues);
                     values = newValues;
                     fullName = "";
                 }

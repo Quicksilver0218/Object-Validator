@@ -82,7 +82,7 @@ public abstract class Condition {
                                 default -> throw new RuntimeException("Unsupported type for iteration: " + o.getClass());
                             }
                     else if (name.length() >= 3 && name.substring(name.length() - 3, name.length() - 1).equals("//"))
-                        fullName = fullName.substring(0, fullName.length() - 3) + fullName.substring(fullName.length() - 2);
+                        handleValues(values, fullName.substring(0, fullName.length() - 3) + fullName.substring(fullName.length() - 2), newValues);
                     else if (name.length() >= 2 && name.charAt(name.length() - 2) == '/') {
                         fullName = fullName.substring(0, fullName.length() - 2);
                         switch (Character.toUpperCase(name.charAt(name.length() - 1))) {

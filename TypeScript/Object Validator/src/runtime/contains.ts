@@ -11,7 +11,7 @@ export default class Contains extends Condition {
     protected override isFulfilledBy(value: unknown): boolean {
         if (typeof value === "string")
             return value.includes(this._arg!);
-        if (value instanceof Object && typeof value[Symbol.iterator] === "function") {
+        if (value instanceof Object && typeof (value as Record<symbol, unknown>)[Symbol.iterator] === "function") {
             for (const o of value as Iterable<unknown>)
                 if (o === undefined)
                     continue;

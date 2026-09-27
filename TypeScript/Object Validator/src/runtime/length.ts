@@ -13,10 +13,10 @@ export default class Length extends Condition {
         if (typeof value === "string")
             return inRange(value.length, this._range);
         if (value instanceof Object) {
-            if (Number.isInteger(value["length"]))
-                return inRange(value["length"], this._range);
-            if (Number.isInteger(value["size"]))
-                return inRange(value["size"], this._range);
+            if (Number.isInteger((value as { length?: number })["length"]))
+                return inRange((value as { length?: number })["length"], this._range);
+            if (Number.isInteger((value as { size?: number })["size"]))
+                return inRange((value as { size?: number })["size"], this._range);
         }
         throw "Unsupported type for 'length': " + (typeof value);
     }
