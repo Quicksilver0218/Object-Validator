@@ -1,6 +1,9 @@
 name: Publish NuGet package
 on:
   workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
 jobs:
   publish_nuget:
     name: Publish package to the NuGet Gallery
@@ -14,9 +17,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: 'Quicksilver0218'
       - name: Publish package
         run: |
           dotnet pack --configuration Release
-          dotnet nuget push bin/Release/Quicksilver0218.ObjectValidator.*.nupkg --api-key "$NUGET_KEY" --source https://api.nuget.org/v3/index.json
-        env:
-          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+          dotnet nuget push bin/Release/Quicksilver0218.ObjectValidator.*.nupkg \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --skip-duplicate
