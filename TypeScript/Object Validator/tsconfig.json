@@ -10,10 +10,12 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "declaration": true,
+        "emitDeclarationOnly": true,
         "types": ["jest"]
     },
     "include": [
-        "src"
+        "src",
+        "tests"
     ],
     "exclude": [
         "dist",
