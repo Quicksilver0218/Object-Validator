@@ -5,18 +5,20 @@
         "target": "ESNext",
         "strictNullChecks": true,
         "strictFunctionTypes": true,
-        "rootDir": ".",
+        "rootDir": "src",
         "outDir": "dist",
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "declaration": true,
+        "emitDeclarationOnly": true,
         "types": ["jest"]
     },
     "include": [
-        "src"
+        "src",
     ],
     "exclude": [
         "dist",
+        "tests",
         "node_modules",
         "**/node_modules/*"
     ],
