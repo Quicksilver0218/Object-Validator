@@ -86,3 +86,38 @@ import { Validator } from "@quicksilver0218/object-validator";
 const validator = new Validator(rules);
 const validationResult = validator.validate(myObject);
 ```
+
+Because JSON deserialization in JavaScript / TypeScript does not guarantee runtime safety, objects parsed from JSON must be validated before use to ensure their attributes match the expected types.
+
+e.g. Use [zod](https://github.com/colinhacks/zod) to check the types first.
+```ts
+import { z } from "zod";
+
+const ObjectSchema = z.object({
+    id: z.number().optional(),
+    name: z.string().optional(),
+    email: z.string().optional(),
+});
+
+const result = z
+    .string()
+    .transform((str, ctx) => {
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Invalid JSON",
+            });
+            return z.NEVER;
+        }
+    })
+    .pipe(ObjectSchema)
+    .safeParse(json);
+
+let myObject: z.infer<typeof ObjectSchema>;
+if (result.success)
+    myObject = result.data;
+else
+    console.error(result.error.errors);
+```

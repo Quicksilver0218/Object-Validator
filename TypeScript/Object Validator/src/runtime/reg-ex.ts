@@ -10,7 +10,7 @@ export default class RegEx extends Condition {
 
     isFulfilledBy(value: unknown): boolean {
         if (typeof value === "string")
-            return new RegExp(this._pattern).test(value);
+            return new RegExp(`^${this._pattern}$`).test(value);
         throw "Unsupported type for 'regex': " + (typeof value);
     }
 }

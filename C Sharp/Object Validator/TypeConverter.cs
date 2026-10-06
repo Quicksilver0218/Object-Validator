@@ -11,6 +11,16 @@ internal sealed class TypeConverter : IYamlTypeConverter
         return type == typeof(Rule[]);
     }
 
+    private static string? GetScalarValue(Scalar scalar)
+    {
+        return scalar.Style == ScalarStyle.Plain && (
+            scalar.Value == null ||
+            scalar.Value.Equals("null", StringComparison.OrdinalIgnoreCase) ||
+            scalar.Value.Equals("~", StringComparison.Ordinal) ||
+            scalar.Value == string.Empty
+        ) ? null : scalar.Value;
+    }
+
     public object? ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
         int state = 0;
@@ -41,17 +51,19 @@ internal sealed class TypeConverter : IYamlTypeConverter
                     int? id = null;
                     string? message = null;
                     while (parser.Current is not MappingEnd) {
-                        string key = (parser.Current as Scalar)!.Value;
+                        string? key = GetScalarValue((parser.Current as Scalar)!);
                         parser.MoveNext();
                         switch (key) {
                             case "condition":
                                 condition = ReadCondition(parser);
                                 break;
                             case "id":
-                                id = int.Parse((parser.Current as Scalar)!.Value);
+                                string? value = GetScalarValue((parser.Current as Scalar)!);
+                                if (value != null)
+                                    id = int.Parse(value);
                                 break;
-                            case "message":
-                                message = (parser.Current as Scalar)!.Value;
+                            case "errorMessage":
+                                message = GetScalarValue((parser.Current as Scalar)!);
                                 break;
                         }
                         parser.MoveNext();
@@ -79,25 +91,25 @@ internal sealed class TypeConverter : IYamlTypeConverter
                     string?[]? args = null;
                     Condition[]? conditions = null;
                     while (parser.Current is not MappingEnd) {
-                        string key = (parser.Current as Scalar)!.Value;
+                        string? key = GetScalarValue((parser.Current as Scalar)!);
                         parser.MoveNext();
                         switch (key) {
                             case "type":
-                                type = (parser.Current as Scalar)!.Value;
+                                type = GetScalarValue((parser.Current as Scalar)!);
                                 break;
                             case "field":
-                                field = (parser.Current as Scalar)!.Value;
+                                field = GetScalarValue((parser.Current as Scalar)!);
                                 break;
                             case "arg":
-                                arg = (parser.Current as Scalar)!.Value;
+                                arg = GetScalarValue((parser.Current as Scalar)!);
                                 break;
                             case "args":
                                 if (parser.Current is not SequenceStart)
                                     throw new YamlException("Expected SequenceStart");
                                 parser.MoveNext();
-                                List<string> argList = [];
+                                List<string?> argList = [];
                                 while (parser.Current is not SequenceEnd) {
-                                    argList.Add((parser.Current as Scalar)!.Value);
+                                    argList.Add(GetScalarValue((parser.Current as Scalar)!));
                                     parser.MoveNext();
                                 }
                                 args = [..argList];

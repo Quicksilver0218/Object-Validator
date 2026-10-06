@@ -9,6 +9,6 @@ public class True extends Condition {
 
     @Override
     protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
-        return value != null && (boolean)value;
+        return value != null && value instanceof Boolean b && b;
     }
 }

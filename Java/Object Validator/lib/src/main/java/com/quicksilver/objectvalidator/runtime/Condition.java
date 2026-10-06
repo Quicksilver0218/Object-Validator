@@ -79,6 +79,10 @@ public abstract class Condition {
                                     for (Object item : e)
                                         newValues.add(item);
                                 }
+                                case Map<?, ?> m -> {
+                                    for (Map.Entry<?, ?> item  : m.entrySet())
+                                        newValues.add(item);
+                                }
                                 default -> throw new RuntimeException("Unsupported type for iteration: " + o.getClass());
                             }
                     else if (name.length() >= 3 && name.substring(name.length() - 3, name.length() - 1).equals("//"))

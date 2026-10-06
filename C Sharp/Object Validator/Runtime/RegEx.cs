@@ -9,7 +9,7 @@ class RegEx(bool reversed, string? fieldExpression, string pattern) : Condition(
     {
         return value switch {
             null => throw new Exception("Null values are not supported for 'regex'."),
-            string s => Regex.IsMatch(s, pattern),
+            string s => Regex.IsMatch(s, $"^{pattern}$"),
             _ => throw new Exception("Unsupported type for 'regex': " + value.GetType())
         };
     }
