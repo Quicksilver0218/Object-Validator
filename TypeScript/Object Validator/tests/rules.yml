@@ -1,0 +1,295 @@
+- condition:
+    type: "!null"
+    field: "testArray.*"
+  id: 1
+- condition:
+    type: "in"
+    field: "testBool"
+    args:
+      - "True"
+      - "true"
+  id: 2
+- condition:
+    type: "!blank"
+    field: "testString"
+  id: 3
+- condition:
+    type: "regex"
+    field: "testString"
+    arg: "^test測試$"
+  id: 4
+- condition:
+    type: "bytes"
+    field: "testString"
+    arg: "6"
+  id: 5
+- condition:
+    type: "length"
+    field: "testString"
+    arg: "6"
+  id: 6
+- condition:
+    type: "length"
+    field: "testArray"
+    arg: "(0"
+  id: 7
+- condition:
+    type: "contains"
+    field: "testString"
+    arg: "test"
+  id: 8
+- condition:
+    type: "contains"
+    field: "testArray"
+    arg: "2024-01-01T00:00:00"
+  id: 9
+- condition:
+    type: "range"
+    field: "testInt"
+    arg: "1"
+  id: 10
+- condition:
+    type: "true"
+    field: "testBool"
+  id: 11
+- condition:
+    type: "blank"
+    field: "testBlankString"
+  id: 12
+- condition:
+    type: "!blank"
+    field: "testBlankString"
+  id: 13
+- condition:
+    type: "null"
+    field: "testArray.0"
+  id: 14
+- condition:
+    type: "!null"
+    field: "testArray.0"
+  id: 15
+- condition:
+    type: "in"
+    field: "testInt"
+    args:
+      - "2"
+      - "3"
+  id: 16
+- condition:
+    type: "regex"
+    field: "testString"
+    arg: '^test\d+$'
+  id: 17
+- condition:
+    type: "bytes"
+    field: "testString"
+    arg: "[8,12]"
+  id: 18
+- condition:
+    type: "length"
+    field: "testString"
+    arg: "10"
+  id: 19
+- condition:
+    type: "length"
+    field: "testMap"
+    arg: "6"
+  id: 20
+- condition:
+    type: "length"
+    field: "testSet"
+    arg: "2"
+  id: 21
+- condition:
+    type: "contains"
+    field: "testSet"
+    arg: "banana"
+  id: 22
+- condition:
+    type: "contains"
+    field: "testArray"
+    arg: "missing"
+  id: 23
+- condition:
+    type: "range"
+    field: "testInt"
+    arg: "[0,5]"
+  id: 24
+- condition:
+    type: "range"
+    field: "testInt"
+    arg: "(1,5)"
+  id: 25
+- condition:
+    type: "range"
+    field: "testArray.1.testDateTime"
+    arg: "[2023-01-01T00:00:00Z, 2023-12-31T23:59:59Z]"
+  id: 26
+- condition:
+    type: "!true"
+    field: "testBool"
+  id: 27
+- condition:
+    type: "!regex"
+    field: "testString"
+    arg: "^nope$"
+  id: 28
+- condition:
+    type: "in"
+    field: "testArray.0"
+    args:
+      - null
+      - "2023-01-01T00:00:00"
+  id: 29
+- condition:
+    type: "contains"
+    field: "testArray"
+    arg: null
+  id: 30
+- condition:
+    type: "in"
+    field: "testString"
+    args:
+      - "test測試"
+      - "null"
+  id: 31
+- condition:
+    type: "and"
+    conditions:
+      - type: "!null"
+        field: "testArray.*"
+      - type: "range"
+        field: "testArray.*.testDateTime"
+        arg: "[1900-01-01T00:00:00Z"
+  id: 101
+- condition:
+    type: "or"
+    conditions:
+      - type: "null"
+        field: "testString"
+      - type: "length"
+        field: "testString"
+        arg: "(0"
+  id: 102
+- condition:
+    type: "and"
+    field: "testArray.*"
+    conditions:
+      - type: "!null"
+      - type: "range"
+        field: "testDateTime"
+        arg: "[1900-01-01T00:00:00Z"
+  id: 103
+- condition:
+    type: "or"
+    field: "testArray.*"
+    conditions:
+      - type: "null"
+      - type: "range"
+        field: "testDateTime"
+        arg: "[2023-01-01T00:00:00Z, 2024-01-01T00:00:00Z]"
+  id: 104
+- condition:
+    type: "and"
+    conditions:
+      - type: "true"
+        field: "testBool"
+      - type: "length"
+        field: "testString"
+        arg: "6"
+  id: 105
+- condition:
+    type: "or"
+    conditions:
+      - type: "null"
+        field: "testString"
+      - type: "length"
+        field: "testString"
+        arg: "100"
+  id: 106
+- condition:
+    type: "!and"
+    conditions:
+      - type: "true"
+        field: "testBool"
+  id: 107
+- condition:
+    type: "!or"
+    conditions:
+      - type: "null"
+        field: "testString"
+      - type: "length"
+        field: "testString"
+        arg: "100"
+  id: 108
+- condition:
+    type: "!null"
+    field: "testNested.name"
+  id: 201
+- condition:
+    type: "range"
+    field: "testNested.count"
+    arg: "2"
+  id: 202
+- condition:
+    type: "!null"
+    field: "testArray.1.testDateTime"
+  id: 203
+- condition:
+    type: "contains"
+    field: "testMap.key1"
+    arg: "value1"
+  id: 204
+- condition:
+    type: "contains"
+    field: "testMap.part1/C.part2"
+    arg: "concatValue"
+  id: 205
+- condition:
+    type: "contains"
+    field: "testMap./*"
+    arg: "starValue"
+  id: 206
+- condition:
+    type: "contains"
+    field: "testMap.//A"
+    arg: "escapeValue"
+  id: 207
+- condition:
+    type: "contains"
+    field: "testMap.key1/K"
+    arg: "value1"
+  id: 208
+- condition:
+    type: "!null"
+    field: "testArray.1/I"
+  id: 209
+- condition:
+    type: "contains"
+    field: "testNested.name/F"
+    arg: "nestedValue"
+  id: 210
+- condition:
+    type: "contains"
+    field: "testMap.nested.inner"
+    arg: "innerValue"
+  id: 211
+- condition:
+    type: "!null"
+    field: "testSet.*"
+  id: 212
+- condition:
+    type: "regex"
+    field: "testString"
+    arg: "^fail$"
+  id: 301
+  errorMessage: '"testString" does not match the required pattern.'
+- condition:
+    type: "range"
+    field: "testInt"
+    arg: "[100,200]"
+  errorMessage: '"testInt" is not in the allowed range.'
+- condition:
+    type: "length"
+    field: "testString"
+    arg: "99"

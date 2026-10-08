@@ -88,11 +88,29 @@ class Utils {
     }
 
     static Condition buildRuntimeCondition(com.quicksilver.objectvalidator.config.Condition condition) {
+        if (condition == null)
+            throw new RuntimeException("Required rule field 'condition' is null.");
+        if (condition.type == null)
+            throw new RuntimeException("Required condition field 'type' is null.");
         String t = condition.type.trim().toLowerCase();
         boolean reversed = false;
         while (t.startsWith("!")) {
             reversed = !reversed;
             t = t.substring(1).trim();
+        }
+        switch (t) {
+            case "and", "or" -> {
+                if (condition.conditions == null)
+                    throw new RuntimeException("Required condition field 'conditions' is null for type '" + t + "'.");
+            }
+            case "in" -> {
+                if (condition.args == null)
+                    throw new RuntimeException("Required condition field 'args' is null for type 'in'.");
+            }
+            case "regex", "bytes", "length", "range" -> {
+                if (condition.arg == null)
+                    throw new RuntimeException("Required condition field 'arg' is null for type '" + t + "'.");
+            }
         }
         return switch (t) {
             case "and" -> new And(reversed, condition.field, Arrays.stream(condition.conditions).map(Utils::buildRuntimeCondition).toArray(Condition[]::new));

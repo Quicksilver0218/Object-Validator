@@ -11,7 +11,9 @@ class Contains(bool reversed, string? fieldExpression, string? arg) : Condition(
             case null:
                 throw new Exception("Null values are not supported for 'contains'.");
             case string s:
-                return s.Contains(arg!);
+                if (arg is null)
+                    throw new Exception("Null argument is not supported for 'contains' with string values.");
+                return s.Contains(arg);
             case IEnumerable e:
                 foreach (object o in e)
                     if (o == null) {

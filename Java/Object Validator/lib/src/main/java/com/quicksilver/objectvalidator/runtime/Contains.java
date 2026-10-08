@@ -14,7 +14,11 @@ public class Contains extends Condition {
     protected boolean isFulfilledBy(Object value, String fullFieldExpression, HashSet<String> passedFields, HashSet<String> failedFields) {
         return switch (value) {
             case null -> throw new RuntimeException("Null values are not supported for 'contains'.");
-            case String s -> s.contains(arg);
+            case String s -> {
+                if (arg == null)
+                    throw new RuntimeException("Null argument is not supported for 'contains' with string values.");
+                yield s.contains(arg);
+            }
             case Object[] a -> {
                 for (Object o : a)
                     if (o == null) {

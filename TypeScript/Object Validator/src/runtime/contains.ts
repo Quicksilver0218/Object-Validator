@@ -9,8 +9,11 @@ export default class Contains extends Condition {
     }
 
     protected override isFulfilledBy(value: unknown): boolean {
-        if (typeof value === "string")
-            return value.includes(this._arg!);
+        if (typeof value === "string") {
+            if (this._arg == null)
+                throw "Null argument is not supported for 'contains' with string values.";
+            return value.includes(this._arg);
+        }
         if (value instanceof Object && typeof (value as Record<symbol, unknown>)[Symbol.iterator] === "function") {
             for (const o of value as Iterable<unknown>)
                 if (o === undefined)

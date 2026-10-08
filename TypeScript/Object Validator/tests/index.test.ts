@@ -1,5 +1,8 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import rules from "./rules.json";
-import { Validator } from "../src";
+import { parse } from "yaml";
+import { Validator, Rule } from "../src";
 
 const validator = new Validator(rules);
 class TestObject2 {
@@ -35,6 +38,10 @@ const result = validator.validate(testObject);
 const failures = new Set(result.failures.map(f => f.id));
 validator.fastFail = true;
 const ffResult = validator.validate(testObject);
+
+const yamlRules = parse(readFileSync(join(process.cwd(), "tests", "rules.yml"), "utf8")) as Rule[];
+const yamlResult = new Validator(yamlRules).validate(testObject);
+const yamlFailures = new Set(yamlResult.failures.map(f => f.id));
 
 const scenarioRules = [
     { condition: { type: "!blank", field: "testString" }, id: 1001, errorMessage: "\"testString\" must not be blank." },
@@ -155,6 +162,19 @@ test("Test True Fails", () => {
 
 test("Test Regex Negation", () => {
     expect(failures.has(28)).toBe(false);
+});
+
+// Cases where arg / args is null (required fields being null)
+test("Test In With Null Arg", () => {
+    expect(failures.has(29)).toBe(false);
+});
+
+test("Test Array Contains Null Arg", () => {
+    expect(failures.has(30)).toBe(false);
+});
+
+test("Test Quoted Null String Arg", () => {
+    expect(failures.has(31)).toBe(false);
 });
 
 test("Test And 1", () => {
@@ -316,4 +336,87 @@ test("Test Invalid Object Fast Fail", () => {
     expect(invalidFFResult.failures[0].message).toBe("\"testString\" must not be blank.");
     expect(invalidFFResult.failedFields.size).toBe(1);
     expect(invalidFFResult.failedFields.has("testString")).toBe(true);
+});
+
+// Tests for YAML rules.yml (corresponds to rules.json)
+test("Test YAML Failure Ids", () => {
+    const ids = yamlResult.failures.filter(f => f.id != null).map(f => f.id as number).sort((a, b) => a - b);
+    expect(ids).toEqual([1, 5, 13, 15, 16, 17, 19, 23, 25, 27, 101, 103, 106, 107, 301]);
+});
+
+test("Test YAML In With Null Arg", () => {
+    expect(yamlFailures.has(29)).toBe(false);
+});
+
+test("Test YAML Array Contains Null Arg", () => {
+    expect(yamlFailures.has(30)).toBe(false);
+});
+
+test("Test YAML Quoted Null String Arg", () => {
+    expect(yamlFailures.has(31)).toBe(false);
+});
+
+// An exception should be thrown when a required field is null (consistent behavior across all three languages)
+function thrownBy(fn: () => unknown): unknown {
+    try {
+        fn();
+        return undefined;
+    } catch (e) {
+        return e;
+    }
+}
+
+test("Test Null Condition", () => {
+    const rules = [{ condition: null }] as unknown as Rule[];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required rule field 'condition' is null.");
+});
+
+test("Test Null Type", () => {
+    const rules = [{ condition: { type: null, field: "testString" } }] as unknown as Rule[];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'type' is null.");
+});
+
+test("Test In Null Args", () => {
+    const rules = [{ condition: { type: "in", field: "testInt", args: null } }] as unknown as Rule[];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'args' is null for type 'in'.");
+});
+
+test("Test And Null Conditions", () => {
+    const rules = [{ condition: { type: "and", conditions: null } }] as unknown as Rule[];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'conditions' is null for type 'and'.");
+});
+
+test("Test Or Null Conditions", () => {
+    const rules = [{ condition: { type: "or", conditions: null } }] as unknown as Rule[];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'conditions' is null for type 'or'.");
+});
+
+test("Test Regex Null Arg", () => {
+    const rules = [{ condition: { type: "regex", field: "testString", arg: null } }];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'arg' is null for type 'regex'.");
+});
+
+test("Test Bytes Null Arg", () => {
+    const rules = [{ condition: { type: "bytes", field: "testString", arg: null } }];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'arg' is null for type 'bytes'.");
+});
+
+test("Test Length Null Arg", () => {
+    const rules = [{ condition: { type: "length", field: "testString", arg: null } }];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'arg' is null for type 'length'.");
+});
+
+test("Test Range Null Arg", () => {
+    const rules = [{ condition: { type: "range", field: "testInt", arg: null } }];
+    expect(thrownBy(() => new Validator(rules))).toBe("Required condition field 'arg' is null for type 'range'.");
+});
+
+test("Test Contains Null Arg String", () => {
+    const v = new Validator([{ condition: { type: "contains", field: "testString", arg: null } }]);
+    expect(thrownBy(() => v.validate(testObject))).toBe("Null argument is not supported for 'contains' with string values.");
+});
+
+test("Test Contains Null Arg Iterable", () => {
+    const v = new Validator([{ condition: { type: "contains", field: "testArray", arg: null } }]);
+    expect(v.validate(testObject).passed).toBe(true);
 });

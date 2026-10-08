@@ -217,6 +217,30 @@
     },
     {
         "condition": {
+            "type": "in",
+            "field": "testArray.0",
+            "args": [null, "2023-01-01T00:00:00"]
+        },
+        "id": 29
+    },
+    {
+        "condition": {
+            "type": "contains",
+            "field": "testArray",
+            "arg": null
+        },
+        "id": 30
+    },
+    {
+        "condition": {
+            "type": "in",
+            "field": "testString",
+            "args": ["test測試", "null"]
+        },
+        "id": 31
+    },
+    {
+        "condition": {
             "type": "and",
             "conditions": [
                 {

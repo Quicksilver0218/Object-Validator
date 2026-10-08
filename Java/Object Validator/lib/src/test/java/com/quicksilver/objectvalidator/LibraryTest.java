@@ -27,6 +27,9 @@ class LibraryTest {
     private final TestObject testObject;
     private final ValidationResult result, ffResult;
     private final Set<Integer> failures;
+    private final Validator yamlValidator;
+    private final ValidationResult yamlResult;
+    private final Set<Integer> yamlFailures;
     private final ValidationResult validResult, invalidResult, invalidFFResult;
 
     LibraryTest() throws JsonMappingException, JsonProcessingException, IOException, URISyntaxException, ReflectiveOperationException {
@@ -53,6 +56,10 @@ class LibraryTest {
         failures = StreamSupport.stream(result.failures.spliterator(), false).map(f -> f.id).collect(Collectors.toSet());
         validator.fastFail = true;
         ffResult = validator.validate(testObject);
+
+        yamlValidator = new Validator(getClass().getResource("/rules.yml"));
+        yamlResult = yamlValidator.validate(testObject);
+        yamlFailures = StreamSupport.stream(yamlResult.failures.spliterator(), false).map(f -> f.id).collect(Collectors.toSet());
 
         Rule[] scenarioRules = {
             new Rule(new Condition("!blank", "testString", null, null, null), 1001, "\"testString\" must not be blank."),
@@ -219,6 +226,22 @@ class LibraryTest {
     @Test
     void testRegexNegation() {
         assertFalse(failures.contains(28));
+    }
+
+    // Cases where arg / args is null (required fields being null)
+    @Test
+    void testInWithNullArg() {
+        assertFalse(failures.contains(29));
+    }
+
+    @Test
+    void testArrayContainsNullArg() {
+        assertFalse(failures.contains(30));
+    }
+
+    @Test
+    void testQuotedNullStringArg() {
+        assertFalse(failures.contains(31));
     }
 
     @Test
@@ -417,5 +440,119 @@ class LibraryTest {
         assertEquals("\"testString\" must not be blank.", failure.message);
         assertEquals(1, invalidFFResult.failedFields.size());
         assertTrue(invalidFFResult.failedFields.contains("testString"));
+    }
+
+    // Tests for YAML rules.yml (corresponds to rules.json)
+    @Test
+    void testYamlFailureIds() {
+        List<Integer> ids = yamlResult.failures.stream().filter(f -> f.id != null).map(f -> f.id).sorted().toList();
+        assertEquals(List.of(1, 5, 13, 15, 16, 17, 19, 23, 25, 27, 101, 103, 106, 107, 301), ids);
+    }
+
+    @Test
+    void testYamlInWithNullArg() {
+        assertFalse(yamlFailures.contains(29));
+    }
+
+    @Test
+    void testYamlArrayContainsNullArg() {
+        assertFalse(yamlFailures.contains(30));
+    }
+
+    @Test
+    void testYamlQuotedNullStringArg() {
+        assertFalse(yamlFailures.contains(31));
+    }
+
+    // An exception should be thrown when a required field is null (consistent behavior across all three languages)
+    private static RuntimeException getValidatorException(Rule[] rules) {
+        try {
+            new Validator(rules);
+            return null;
+        } catch (RuntimeException e) {
+            return e;
+        }
+    }
+
+    @Test
+    void testNullCondition() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(null, null, null) });
+        assertNotNull(ex);
+        assertEquals("Required rule field 'condition' is null.", ex.getMessage());
+    }
+
+    @Test
+    void testNullType() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition(null, "testString", null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'type' is null.", ex.getMessage());
+    }
+
+    @Test
+    void testInNullArgs() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("in", "testInt", null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'args' is null for type 'in'.", ex.getMessage());
+    }
+
+    @Test
+    void testAndNullConditions() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("and", null, null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'conditions' is null for type 'and'.", ex.getMessage());
+    }
+
+    @Test
+    void testOrNullConditions() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("or", null, null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'conditions' is null for type 'or'.", ex.getMessage());
+    }
+
+    @Test
+    void testRegexNullArg() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("regex", "testString", null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'arg' is null for type 'regex'.", ex.getMessage());
+    }
+
+    @Test
+    void testBytesNullArg() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("bytes", "testString", null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'arg' is null for type 'bytes'.", ex.getMessage());
+    }
+
+    @Test
+    void testLengthNullArg() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("length", "testString", null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'arg' is null for type 'length'.", ex.getMessage());
+    }
+
+    @Test
+    void testRangeNullArg() {
+        RuntimeException ex = getValidatorException(new Rule[] { new Rule(new Condition("range", "testInt", null, null, null), null, null) });
+        assertNotNull(ex);
+        assertEquals("Required condition field 'arg' is null for type 'range'.", ex.getMessage());
+    }
+
+    @Test
+    void testContainsNullArgString() {
+        Validator v = new Validator(new Rule[] { new Rule(new Condition("contains", "testString", null, null, null), null, null) });
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            try {
+                v.validate(testObject);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        assertEquals("Null argument is not supported for 'contains' with string values.", ex.getMessage());
+    }
+
+    @Test
+    void testContainsNullArgIterable() throws ReflectiveOperationException {
+        Validator v = new Validator(new Rule[] { new Rule(new Condition("contains", "testArray", null, null, null), null, null) });
+        assertTrue(v.validate(testObject).passed);
     }
 }

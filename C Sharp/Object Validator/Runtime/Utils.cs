@@ -102,11 +102,23 @@ class Utils
     }
 
     internal static Condition BuildRuntimeCondition(Config.Condition condition) {
+        if (condition is null)
+            throw new Exception("Required rule field 'condition' is null.");
+        if (condition.type is null)
+            throw new Exception("Required condition field 'type' is null.");
         string t = condition.type.Trim().ToLower();
         bool reversed = false;
         while (t.StartsWith('!')) {
             reversed = !reversed;
             t = t[1..].Trim();
+        }
+        switch (t) {
+            case "and" or "or" when condition.conditions is null:
+                throw new Exception("Required condition field 'conditions' is null for type '" + t + "'.");
+            case "in" when condition.args is null:
+                throw new Exception("Required condition field 'args' is null for type 'in'.");
+            case "regex" or "bytes" or "length" or "range" when condition.arg is null:
+                throw new Exception("Required condition field 'arg' is null for type '" + t + "'.");
         }
         return t switch
         {

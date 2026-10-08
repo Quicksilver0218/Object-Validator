@@ -17,3 +17,4 @@ robocopy "C Sharp/Object Validator/bin/Release" release *.nupkg
 robocopy "Java/Object Validator/lib/build/libs" release *.?.jar
 robocopy "TypeScript/Object Validator/dist" release/@quicksilver0218/object-validator/dist
 robocopy "TypeScript/Object Validator" release/@quicksilver0218/object-validator package.json
+exit /b 0

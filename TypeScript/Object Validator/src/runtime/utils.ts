@@ -72,12 +72,22 @@ export function inRange(value: unknown, range: string): boolean {
 }
 
 export function buildRuntimeCondition(condition: Condition): RuntimeCondition {
+    if (condition == null)
+        throw "Required rule field 'condition' is null.";
+    if (condition.type == null)
+        throw "Required condition field 'type' is null.";
     let t = condition.type.trim().toLowerCase();
     let reversed = false;
     while (t.startsWith("!")) {
         reversed = !reversed;
         t = t.substring(1).trim();
     }
+    if ((t === "and" || t === "or") && condition.conditions == null)
+        throw "Required condition field 'conditions' is null for type '" + t + "'.";
+    if (t === "in" && condition.args == null)
+        throw "Required condition field 'args' is null for type 'in'.";
+    if ((t === "regex" || t === "bytes" || t === "length" || t === "range") && condition.arg == null)
+        throw "Required condition field 'arg' is null for type '" + t + "'.";
     switch (t) {
         case "and":
             return new And(reversed, condition.field, condition.conditions!.map(buildRuntimeCondition));

@@ -10,6 +10,9 @@ public class LibraryTest
     private readonly TestObject testObject;
     private readonly ValidationResult result, ffResult;
     private readonly HashSet<int?> failures;
+    private readonly Validator yamlValidator;
+    private readonly ValidationResult yamlResult;
+    private readonly HashSet<int?> yamlFailures;
     private readonly ValidationResult validResult, invalidResult, invalidFFResult;
 
     public LibraryTest()
@@ -33,6 +36,10 @@ public class LibraryTest
         failures = result.failures.Select(f => f.id).ToHashSet();
         validator.fastFail = true;
         ffResult = validator.Validate(testObject);
+
+        yamlValidator = new(File.OpenText("rules.yml"));
+        yamlResult = yamlValidator.Validate(testObject);
+        yamlFailures = yamlResult.failures.Select(f => f.id).ToHashSet();
 
         Rule[] scenarioRules =
         [
@@ -197,7 +204,19 @@ public class LibraryTest
         Assert.IsTrue(failures.Contains(25));
     }
 
-    // arg / args 為 null 的情況(Java/TypeScript 已可正確解析,C# 需 TypeConverter 遷就)
+    [TestMethod]
+    public void TestDateRange()
+    {
+        Assert.IsFalse(failures.Contains(26));
+    }
+
+    [TestMethod]
+    public void TestTrueFails()
+    {
+        Assert.IsTrue(failures.Contains(27));
+    }
+
+    // Cases where arg / args is null (Java/TypeScript already parse these correctly; C# requires the TypeConverter to accommodate)
     [TestMethod]
     public void TestInWithNullArg()
     {
@@ -216,6 +235,35 @@ public class LibraryTest
         Assert.IsFalse(failures.Contains(31));
     }
 
+    // Tests for YAML rules.yml (corresponds to rules.json)
+    [TestMethod]
+    public void TestYamlFailureIds()
+    {
+        List<int> ids = [.. yamlResult.failures.Where(f => f.id != null).Select(f => f.id!.Value).Order()];
+        CollectionAssert.AreEqual(
+            new List<int> { 1, 5, 13, 15, 16, 17, 19, 23, 25, 27, 101, 103, 106, 107, 301 },
+            ids
+        );
+    }
+
+    [TestMethod]
+    public void TestYamlInWithNullArg()
+    {
+        Assert.IsFalse(yamlFailures.Contains(29));
+    }
+
+    [TestMethod]
+    public void TestYamlArrayContainsNullArg()
+    {
+        Assert.IsFalse(yamlFailures.Contains(30));
+    }
+
+    [TestMethod]
+    public void TestYamlQuotedNullStringArg()
+    {
+        Assert.IsFalse(yamlFailures.Contains(31));
+    }
+
     [TestMethod]
     public void TestRegexNegation()
     {
@@ -224,6 +272,12 @@ public class LibraryTest
 
     [TestMethod]
     public void TestAnd1()
+    {
+        Assert.IsTrue(failures.Contains(101));
+    }
+
+    [TestMethod]
+    public void TestOr1()
     {
         Assert.IsFalse(failures.Contains(102));
     }
@@ -235,19 +289,19 @@ public class LibraryTest
     }
 
     [TestMethod]
-    public void TestOr1()
+    public void TestOr2()
     {
         Assert.IsFalse(failures.Contains(104));
     }
 
     [TestMethod]
-    public void TestOr2()
+    public void TestAndPassing()
     {
         Assert.IsFalse(failures.Contains(105));
     }
 
     [TestMethod]
-    public void TestAndPassing()
+    public void TestOrFails()
     {
         Assert.IsTrue(failures.Contains(106));
     }
@@ -447,5 +501,89 @@ public class LibraryTest
         Assert.AreEqual("\"testString\" must not be blank.", failure.message);
         Assert.AreEqual(1, invalidFFResult.failedFields.Count);
         Assert.IsTrue(invalidFFResult.failedFields.Contains("testString"));
+    }
+
+    // An exception should be thrown when a required field is null (consistent behavior across all three languages)
+    private static Exception? CatchException(Action action)
+    {
+        try {
+            action();
+            return null;
+        } catch (Exception e) {
+            return e;
+        }
+    }
+
+    private static string? GetValidatorErrorMessage(Rule[] rules)
+    {
+        return CatchException(() => new Validator(rules))?.Message;
+    }
+
+    [TestMethod]
+    public void TestNullCondition()
+    {
+        Assert.AreEqual("Required rule field 'condition' is null.", GetValidatorErrorMessage([new(null!, null, null)]));
+    }
+
+    [TestMethod]
+    public void TestNullType()
+    {
+        Assert.AreEqual("Required condition field 'type' is null.", GetValidatorErrorMessage([new(new Condition(null!, "testString", null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestInNullArgs()
+    {
+        Assert.AreEqual("Required condition field 'args' is null for type 'in'.", GetValidatorErrorMessage([new(new Condition("in", "testInt", null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestAndNullConditions()
+    {
+        Assert.AreEqual("Required condition field 'conditions' is null for type 'and'.", GetValidatorErrorMessage([new(new Condition("and", null, null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestOrNullConditions()
+    {
+        Assert.AreEqual("Required condition field 'conditions' is null for type 'or'.", GetValidatorErrorMessage([new(new Condition("or", null, null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestRegexNullArg()
+    {
+        Assert.AreEqual("Required condition field 'arg' is null for type 'regex'.", GetValidatorErrorMessage([new(new Condition("regex", "testString", null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestBytesNullArg()
+    {
+        Assert.AreEqual("Required condition field 'arg' is null for type 'bytes'.", GetValidatorErrorMessage([new(new Condition("bytes", "testString", null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestLengthNullArg()
+    {
+        Assert.AreEqual("Required condition field 'arg' is null for type 'length'.", GetValidatorErrorMessage([new(new Condition("length", "testString", null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestRangeNullArg()
+    {
+        Assert.AreEqual("Required condition field 'arg' is null for type 'range'.", GetValidatorErrorMessage([new(new Condition("range", "testInt", null, null, null), null, null)]));
+    }
+
+    [TestMethod]
+    public void TestContainsNullArgString()
+    {
+        Exception? ex = CatchException(() => new Validator([new(new Condition("contains", "testString", null, null, null), null, null)]).Validate(testObject));
+        Assert.IsNotNull(ex);
+        Assert.AreEqual("Null argument is not supported for 'contains' with string values.", ex!.Message);
+    }
+
+    [TestMethod]
+    public void TestContainsNullArgIterable()
+    {
+        Assert.IsTrue(new Validator([new(new Condition("contains", "testArray", null, null, null), null, null)]).Validate(testObject).passed);
     }
 }

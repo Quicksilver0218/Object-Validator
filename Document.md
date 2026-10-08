@@ -19,6 +19,7 @@
         - [Contains](#contains)
         - [Range](#range)
         - [True](#true)
+    - [Required Fields](#required-fields)
     - [Failure Identification](#failure-identification)
 - [Classes / Types](#classes--types)
     - [C♯](#c)
@@ -239,6 +240,31 @@ Ranges should be expressed as [intervals](https://en.wikipedia.org/wiki/Interval
 
 #### True
 `true` checks whether the value is `true`. It only supports boolean values. The condition is passed when the value is `true`.
+
+### Required Fields
+A rule and a condition have required fields that depend on the condition type. When a required field is `null` (or missing), an exception is thrown when the `Validator` is constructed (i.e. when the rules are compiled into runtime conditions), before any validation is performed:
+
+- A rule requires `condition`, and a condition requires `type`.
+- `conditions` is required for `and` and `or` (including their negated forms).
+- `args` is required for `in` (including `!in`).
+- `arg` is required for `regex`, `bytes`, `length` and `range` (including their negated forms).
+- `null`, `blank` and `true` (including their negated forms) do not require additional fields.
+
+The exception message is the same in C♯, Java and JavaScript / TypeScript:
+
+| Null required field | Exception message |
+|---|---|
+| `condition` | `Required rule field 'condition' is null.` |
+| `type` | `Required condition field 'type' is null.` |
+| `conditions` | `Required condition field 'conditions' is null for type 'and'.` (or `'or'`) |
+| `args` | `Required condition field 'args' is null for type 'in'.` |
+| `arg` | `Required condition field 'arg' is null for type 'regex'.` (or `'bytes'`, `'length'`, `'range'`) |
+
+Negated types refer to their base type in the message (e.g. `!regex` reports `'regex'`). In C♯ the thrown exception is a `System.Exception`, in Java a `java.lang.RuntimeException`, and in JavaScript / TypeScript a string is thrown.
+
+One exception to the above: `contains` does not require a non-null `arg`, because `arg` may be `null` to match `null` elements in an iterable value. However, when the value is a string, a `null` argument is not supported, and the following exception is thrown at validation time instead:
+
+`Null argument is not supported for 'contains' with string values.`
 
 ### Failure Identification
 After validation, you can know whether the data is valid. However, to know that which rules are violated, extra information (i.e. `id`, `errorMessage`) are needed to be added to the rules. When a rule with `id` or `errorMessage` is violated, a `ValidationFailure` with the same `id` and `message` will be added to `failures` of the `ValidationResult`. (Please see [Classes / Types](#classes--types) for detail.)
